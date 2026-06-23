@@ -1,0 +1,681 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Informe de Avance — Implementaciones en Sucursales 2026</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Segoe UI', Arial, sans-serif;
+    background: #F0F2F5;
+    color: #1a1a2e;
+    min-height: 100vh;
+  }
+
+  /* ── HEADER ── */
+  .header {
+    background: #1B2A47;
+    padding: 0 40px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 72px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .header-title {
+    color: #fff;
+    font-size: 18px;
+    font-weight: 600;
+    letter-spacing: 0.01em;
+  }
+  .header-meta {
+    color: rgba(255,255,255,0.55);
+    font-size: 12px;
+    margin-top: 2px;
+  }
+  .logo-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .logo-icon {
+    width: 36px;
+    height: 36px;
+  }
+  .logo-text {
+    color: #fff;
+    font-size: 20px;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+  }
+  .logo-text span { color: #F5A623; }
+
+  /* ── LAYOUT ── */
+  .container { max-width: 1200px; margin: 0 auto; padding: 32px 24px; }
+
+  /* ── KPI STRIP ── */
+  .kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin-bottom: 28px;
+  }
+  .kpi-card {
+    background: #fff;
+    border-radius: 12px;
+    padding: 20px 22px;
+    border-top: 4px solid transparent;
+    position: relative;
+    overflow: hidden;
+  }
+  .kpi-card.finalizadas { border-top-color: #1D9E75; }
+  .kpi-card.en-proceso  { border-top-color: #F5A623; }
+  .kpi-card.a-iniciar   { border-top-color: #378ADD; }
+  .kpi-card.a-definir   { border-top-color: #888780; }
+  .kpi-label {
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: #888780;
+    margin-bottom: 8px;
+  }
+  .kpi-number {
+    font-size: 42px;
+    font-weight: 700;
+    line-height: 1;
+    color: #1B2A47;
+  }
+  .kpi-card.finalizadas .kpi-number { color: #0F6E56; }
+  .kpi-card.en-proceso  .kpi-number { color: #BA7517; }
+  .kpi-card.a-iniciar   .kpi-number { color: #185FA5; }
+  .kpi-card.a-definir   .kpi-number { color: #5F5E5A; }
+  .kpi-sublabel {
+    font-size: 12px;
+    color: #888780;
+    margin-top: 6px;
+  }
+  .kpi-icon {
+    position: absolute;
+    right: 18px;
+    top: 18px;
+    font-size: 26px;
+    opacity: 0.13;
+  }
+  .kpi-card.finalizadas .kpi-icon { color: #1D9E75; }
+  .kpi-card.en-proceso  .kpi-icon { color: #F5A623; }
+  .kpi-card.a-iniciar   .kpi-icon { color: #378ADD; }
+  .kpi-card.a-definir   .kpi-icon { color: #888780; }
+
+  /* ── SECTION TITLE ── */
+  .section-title {
+    font-size: 13px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: #888780;
+    margin-bottom: 14px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid #E8E9EC;
+  }
+
+  /* ── CHARTS ROW ── */
+  .charts-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 28px;
+  }
+  .chart-card {
+    background: #fff;
+    border-radius: 12px;
+    padding: 22px;
+  }
+  .chart-card-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: #1B2A47;
+    margin-bottom: 16px;
+  }
+  .chart-wrap { position: relative; width: 100%; }
+
+  /* ── PROGRESS BAR ── */
+  .progress-bar-wrap {
+    margin-bottom: 10px;
+  }
+  .progress-bar-label {
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
+    color: #444441;
+    margin-bottom: 5px;
+    font-weight: 500;
+  }
+  .progress-bar-bg {
+    background: #F1EFE8;
+    border-radius: 4px;
+    height: 8px;
+    overflow: hidden;
+  }
+  .progress-bar-fill {
+    height: 100%;
+    border-radius: 4px;
+    transition: width 0.6s ease;
+  }
+
+  /* ── TIMELINE TABLE ── */
+  .timeline-section { margin-bottom: 28px; }
+  .table-card {
+    background: #fff;
+    border-radius: 12px;
+    overflow: hidden;
+  }
+  .table-header {
+    padding: 18px 24px 14px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid #F1EFE8;
+  }
+  .table-header-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: #1B2A47;
+  }
+  .filter-tabs {
+    display: flex;
+    gap: 6px;
+  }
+  .filter-tab {
+    padding: 5px 14px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 600;
+    cursor: pointer;
+    border: 1.5px solid transparent;
+    transition: all 0.15s;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  .filter-tab.active-all    { background: #1B2A47; color: #fff; border-color: #1B2A47; }
+  .filter-tab.active-fin    { background: #E1F5EE; color: #0F6E56; border-color: #5DCAA5; }
+  .filter-tab.active-proc   { background: #FAEEDA; color: #854F0B; border-color: #EF9F27; }
+  .filter-tab.active-ini    { background: #E6F1FB; color: #185FA5; border-color: #85B7EB; }
+  .filter-tab.active-def    { background: #F1EFE8; color: #444441; border-color: #B4B2A9; }
+  .filter-tab.inactive {
+    background: #fff;
+    color: #888780;
+    border-color: #E8E9EC;
+  }
+  .filter-tab.inactive:hover { border-color: #B4B2A9; }
+
+  table.main-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+  }
+  table.main-table thead th {
+    background: #F8F8F6;
+    color: #5F5E5A;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    padding: 10px 16px;
+    text-align: left;
+    border-bottom: 1px solid #E8E9EC;
+  }
+  table.main-table tbody tr {
+    border-bottom: 1px solid #F1EFE8;
+    transition: background 0.1s;
+  }
+  table.main-table tbody tr:hover { background: #F8F8F6; }
+  table.main-table tbody tr:last-child { border-bottom: none; }
+  table.main-table td {
+    padding: 11px 16px;
+    color: #1a1a2e;
+    vertical-align: middle;
+  }
+  td.orden {
+    font-weight: 700;
+    color: #B4B2A9;
+    font-size: 12px;
+    width: 44px;
+  }
+  td.sucursal {
+    font-weight: 600;
+    color: #1B2A47;
+  }
+  .month-label {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    font-weight: 700;
+    color: #B4B2A9;
+    padding: 8px 16px 4px;
+    border-bottom: 1px solid #F1EFE8;
+    background: #FAFAFA;
+  }
+
+  /* ── STATUS BADGE ── */
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+  .badge-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .badge.fin  { background: #E1F5EE; color: #085041; }
+  .badge.fin .badge-dot { background: #1D9E75; }
+  .badge.proc { background: #FAEEDA; color: #633806; }
+  .badge.proc .badge-dot { background: #EF9F27; }
+  .badge.ini  { background: #E6F1FB; color: #0C447C; }
+  .badge.ini .badge-dot { background: #378ADD; }
+  .badge.def  { background: #F1EFE8; color: #444441; }
+  .badge.def .badge-dot { background: #888780; }
+  .badge.no   { background: #FCEBEB; color: #501313; }
+  .badge.no .badge-dot { background: #E24B4A; }
+
+  /* ── SITUACION CHIP ── */
+  .chip {
+    font-size: 11px;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 4px;
+    display: inline-block;
+  }
+  .chip.renovacion { background: #EEEDFE; color: #3C3489; }
+  .chip.nuevo      { background: #E6F1FB; color: #185FA5; }
+  .chip.mudanza    { background: #FAEEDA; color: #854F0B; }
+
+  /* ── DATE ── */
+  .date-cell {
+    font-size: 12px;
+    color: #5F5E5A;
+    font-variant-numeric: tabular-nums;
+  }
+  .date-cell.pending { color: #B4B2A9; font-style: italic; }
+
+  /* ── FOOTER ── */
+  .footer {
+    text-align: center;
+    font-size: 11px;
+    color: #B4B2A9;
+    padding: 24px 0 32px;
+    border-top: 1px solid #E8E9EC;
+    margin-top: 8px;
+  }
+  .footer strong { color: #5F5E5A; }
+
+  /* ── LEGEND ROW ── */
+  .legend-row {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+    font-size: 11px;
+    color: #5F5E5A;
+    margin-bottom: 10px;
+    align-items: center;
+  }
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-weight: 600;
+  }
+  .legend-box {
+    width: 10px;
+    height: 10px;
+    border-radius: 2px;
+  }
+
+  @media print {
+    body { background: #fff; }
+    .header { position: relative; }
+    .filter-tabs { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="header">
+  <div>
+    <div class="header-title">Informe de Avance — Implementaciones en Sucursales</div>
+    <div class="header-meta">Actualizado al 23 de junio de 2026 · Plan 2025–2026</div>
+  </div>
+  <div class="logo-wrapper">
+    <svg class="logo-icon" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect width="36" height="36" rx="6" fill="#F5A623"/>
+      <rect x="8" y="10" width="4" height="16" rx="1" fill="#1B2A47"/>
+      <rect x="16" y="6" width="4" height="24" rx="1" fill="#1B2A47"/>
+      <rect x="24" y="14" width="4" height="12" rx="1" fill="#1B2A47"/>
+    </svg>
+    <div class="logo-text">Inver<span>fin</span></div>
+  </div>
+</header>
+
+<div class="container">
+
+  <!-- KPI STRIP -->
+  <div class="kpi-grid">
+    <div class="kpi-card finalizadas">
+      <div class="kpi-label">Finalizadas</div>
+      <div class="kpi-number">15</div>
+      <div class="kpi-sublabel">sucursales abiertas</div>
+      <div class="kpi-icon">✓</div>
+    </div>
+    <div class="kpi-card en-proceso">
+      <div class="kpi-label">En proceso</div>
+      <div class="kpi-number">6</div>
+      <div class="kpi-sublabel">en ejecución ahora</div>
+      <div class="kpi-icon">⚙</div>
+    </div>
+    <div class="kpi-card a-iniciar">
+      <div class="kpi-label">A iniciar</div>
+      <div class="kpi-number">7</div>
+      <div class="kpi-sublabel">próximas en agenda</div>
+      <div class="kpi-icon">▶</div>
+    </div>
+    <div class="kpi-card a-definir">
+      <div class="kpi-label">A definir</div>
+      <div class="kpi-number">30</div>
+      <div class="kpi-sublabel">pendientes de agenda</div>
+      <div class="kpi-icon">◌</div>
+    </div>
+  </div>
+
+  <!-- CHARTS ROW -->
+  <div class="charts-row">
+
+    <!-- Avance total -->
+    <div class="chart-card">
+      <div class="chart-card-title">Avance general del plan</div>
+      <div class="chart-wrap" style="height:180px;">
+        <canvas id="donutChart" role="img" aria-label="Gráfico de donut: 15 finalizadas, 6 en proceso, 7 a iniciar, 30 a definir, 1 no aplica de 59 sucursales totales"></canvas>
+      </div>
+      <div style="margin-top:14px;">
+        <div class="legend-row" style="flex-direction:column; gap:7px;">
+          <div class="legend-item"><div class="legend-box" style="background:#1D9E75"></div>Finalizado — 15</div>
+          <div class="legend-item"><div class="legend-box" style="background:#EF9F27"></div>En proceso — 6</div>
+          <div class="legend-item"><div class="legend-box" style="background:#378ADD"></div>A iniciar — 7</div>
+          <div class="legend-item"><div class="legend-box" style="background:#B4B2A9"></div>A definir — 30</div>
+          <div class="legend-item"><div class="legend-box" style="background:#E24B4A"></div>Sin avance — 1</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Por tipo -->
+    <div class="chart-card">
+      <div class="chart-card-title">Tipo de intervención</div>
+      <div class="chart-wrap" style="height:180px;">
+        <canvas id="barChart" role="img" aria-label="Barras horizontales: Renovación 44, Nuevo 10, Mudanza 5"></canvas>
+      </div>
+      <div style="margin-top:16px; font-size:12px; color:#5F5E5A; line-height:1.6;">
+        <strong>44</strong> renovaciones · <strong>10</strong> locales nuevos · <strong>5</strong> mudanzas
+      </div>
+    </div>
+
+    <!-- Progreso mensual -->
+    <div class="chart-card">
+      <div class="chart-card-title">Inauguraciones por mes (2026)</div>
+      <div class="chart-wrap" style="height:180px;">
+        <canvas id="lineChart" role="img" aria-label="Barras de inauguraciones por mes de 2026"></canvas>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- TIMELINE TABLE -->
+  <div class="timeline-section">
+    <div class="table-card">
+      <div class="table-header">
+        <div class="table-header-title">Calendario de implementación & priorización</div>
+        <div class="filter-tabs">
+          <button class="filter-tab active-all" onclick="filterTable('all', this)">Todos</button>
+          <button class="filter-tab inactive" onclick="filterTable('Finalizado', this)">Finalizados</button>
+          <button class="filter-tab inactive" onclick="filterTable('En proceso', this)">En proceso</button>
+          <button class="filter-tab inactive" onclick="filterTable('A iniciar', this)">A iniciar</button>
+          <button class="filter-tab inactive" onclick="filterTable('A definir', this)">A definir</button>
+        </div>
+      </div>
+      <table class="main-table" id="mainTable">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Sucursal</th>
+            <th>Tipo</th>
+            <th>Estado</th>
+            <th>Inicio obras</th>
+            <th>Fecha estimada inauguración</th>
+            <th>Apertura real</th>
+            <th>M²</th>
+          </tr>
+        </thead>
+        <tbody id="tableBody">
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="footer">
+    Generado para <strong>Inverfin S.A.</strong> — Gerencia de Proyectos e Implementaciones · Plan de Sucursales 2025–2026
+  </div>
+
+</div>
+
+<script>
+const data = [
+  { orden:1, sucursal:"Luque Av.Gral.Aquino", tipo:"Renovación", estado:"Finalizado", inicio:"01/07/2025", estimada:"31/07/2025", apertura:"31/08/2025", m2:"161.180", mes:"ago-25" },
+  { orden:2, sucursal:"San Lorenzo M.O.G.", tipo:"Mudanza", estado:"Finalizado", inicio:"20/10/2025", estimada:"30/11/2025", apertura:"30/11/2025", m2:"188.820", mes:"nov-25" },
+  { orden:3, sucursal:"Villa Elisa", tipo:"Nuevo", estado:"Finalizado", inicio:"01/09/2025", estimada:"31/10/2025", apertura:"31/10/2025", m2:"145.000", mes:"oct-25" },
+  { orden:4, sucursal:"Arroyos y Esteros", tipo:"Renovación", estado:"Finalizado", inicio:"01/09/2025", estimada:"31/12/2025", apertura:"31/12/2025", m2:"143.640", mes:"dic-25" },
+  { orden:5, sucursal:"PJCaballero Terminal", tipo:"Nuevo", estado:"Finalizado", inicio:"01/11/2025", estimada:"30/11/2025", apertura:"30/11/2025", m2:"365.000", mes:"nov-25" },
+  { orden:6, sucursal:"Emboscada", tipo:"Nuevo", estado:"Finalizado", inicio:"01/01/2026", estimada:"02/02/2026", apertura:"25/02/2026", m2:"70.000", mes:"feb-26" },
+  { orden:7, sucursal:"Mariano Roque Alonso", tipo:"Renovación", estado:"Finalizado", inicio:"19/01/2026", estimada:"28/02/2026", apertura:"13/03/2026", m2:"231.330", mes:"mar-26" },
+  { orden:8, sucursal:"Luque Cañada", tipo:"Nuevo", estado:"Finalizado", inicio:"13/01/2026", estimada:"—", apertura:"—", m2:"114.000", mes:"ene-26" },
+  { orden:9, sucursal:"Itaugua", tipo:"Mudanza", estado:"Finalizado", inicio:"02/02/2026", estimada:"—", apertura:"—", m2:"241.000", mes:"feb-26" },
+  { orden:10, sucursal:"Lambaré", tipo:"Nuevo", estado:"Finalizado", inicio:"01/10/2025", estimada:"23/02/2026", apertura:"10/03/2026", m2:"509.500", mes:"mar-26" },
+  { orden:11, sucursal:"Laguna Grande F.M", tipo:"Renovación", estado:"Finalizado", inicio:"02/02/2026", estimada:"31/03/2026", apertura:"31/03/2026", m2:"233.600", mes:"mar-26" },
+  { orden:12, sucursal:"Villa Hayes Nuevo", tipo:"Nuevo", estado:"Finalizado", inicio:"02/02/2026", estimada:"30/04/2026", apertura:"—", m2:"230.000", mes:"abr-26" },
+  { orden:13, sucursal:"Areguá", tipo:"Renovación", estado:"Finalizado", inicio:"04/03/2026", estimada:"28/04/2026", apertura:"—", m2:"293.190", mes:"abr-26" },
+  { orden:15, sucursal:"Capitán Miranda", tipo:"Mudanza", estado:"Finalizado", inicio:"08/04/2026", estimada:"16/06/2026", apertura:"—", m2:"248.000", mes:"jun-26" },
+  { orden:16, sucursal:"Yasy Cañy", tipo:"Mudanza", estado:"Finalizado", inicio:"22/04/2026", estimada:"10/06/2026", apertura:"—", m2:"216.000", mes:"jun-26" },
+  { orden:14, sucursal:"Luque Mercado", tipo:"Renovación", estado:"En proceso", inicio:"09/03/2026", estimada:"A definir", apertura:"—", m2:"429.000", mes:"" },
+  { orden:17, sucursal:"Naranjal", tipo:"Nuevo", estado:"En proceso", inicio:"29/04/2026", estimada:"11/06/2026", apertura:"—", m2:"140.000", mes:"" },
+  { orden:18, sucursal:"Ypané", tipo:"Renovación", estado:"En proceso", inicio:"01/06/2026", estimada:"02/07/2026", apertura:"—", m2:"139.600", mes:"" },
+  { orden:19, sucursal:"Paraguarí", tipo:"Renovación", estado:"En proceso", inicio:"15/06/2026", estimada:"07/07/2026", apertura:"—", m2:"174.000", mes:"" },
+  { orden:20, sucursal:"Horqueta", tipo:"Renovación", estado:"En proceso", inicio:"15/06/2026", estimada:"20/08/2026", apertura:"—", m2:"452.740", mes:"" },
+  { orden:21, sucursal:"La Colmena", tipo:"Mudanza", estado:"En proceso", inicio:"15/06/2026", estimada:"02/08/2026", apertura:"—", m2:"—", mes:"" },
+  { orden:22, sucursal:"Santa Rosa Misiones", tipo:"Renovación", estado:"A iniciar", inicio:"22/06/2026", estimada:"07/07/2026", apertura:"—", m2:"—", mes:"" },
+  { orden:23, sucursal:"Hohenau", tipo:"Renovación", estado:"A iniciar", inicio:"01/07/2026", estimada:"04/08/2026", apertura:"—", m2:"300.000", mes:"" },
+  { orden:24, sucursal:"Limpio", tipo:"Renovación", estado:"A iniciar", inicio:"13/07/2026", estimada:"11/09/2026", apertura:"—", m2:"315.000", mes:"" },
+  { orden:25, sucursal:"Pilar", tipo:"Nuevo", estado:"A iniciar", inicio:"15/07/2026", estimada:"14/09/2026", apertura:"—", m2:"181.125", mes:"" },
+  { orden:26, sucursal:"Encarnación", tipo:"Renovación", estado:"A iniciar", inicio:"01/08/2026", estimada:"13/09/2026", apertura:"—", m2:"296.640", mes:"" },
+  { orden:27, sucursal:"Encarnación 2", tipo:"Nuevo", estado:"A iniciar", inicio:"01/08/2026", estimada:"18/09/2026", apertura:"—", m2:"325.000", mes:"" },
+  { orden:28, sucursal:"Concepción Av.Pinedo", tipo:"Renovación", estado:"A iniciar", inicio:"01/08/2026", estimada:"22/09/2026", apertura:"—", m2:"332.280", mes:"" },
+  { orden:29, sucursal:"Ita", tipo:"Renovación", estado:"A definir", inicio:"01/08/2026", estimada:"19/09/2026", apertura:"—", m2:"149.520", mes:"" },
+  { orden:30, sucursal:"San Ignacio Misiones", tipo:"Renovación", estado:"A definir", inicio:"01/08/2026", estimada:"26/09/2026", apertura:"—", m2:"—", mes:"" },
+  { orden:31, sucursal:"Coronel Bogado", tipo:"Renovación", estado:"A definir", inicio:"—", estimada:"—", apertura:"—", m2:"294.120", mes:"" },
+  { orden:32, sucursal:"María Auxiliadora", tipo:"Renovación", estado:"A definir", inicio:"—", estimada:"—", apertura:"—", m2:"381.737", mes:"" },
+  { orden:33, sucursal:"Caaguazú Centro", tipo:"Renovación", estado:"A definir", inicio:"—", estimada:"—", apertura:"—", m2:"546.560", mes:"" },
+  { orden:34, sucursal:"Santa Rita", tipo:"Renovación", estado:"A definir", inicio:"—", estimada:"—", apertura:"—", m2:"230.000", mes:"" },
+  { orden:35, sucursal:"Hernandarias", tipo:"Renovación", estado:"A definir", inicio:"—", estimada:"—", apertura:"—", m2:"980.980", mes:"" },
+  { orden:36, sucursal:"Pdte. Franco Centro", tipo:"Renovación", estado:"A definir", inicio:"—", estimada:"—", apertura:"—", m2:"252.400", mes:"" },
+  { orden:37, sucursal:"C.D.E. Mercado", tipo:"Renovación", estado:"A definir", inicio:"—", estimada:"—", apertura:"—", m2:"141.960", mes:"" },
+  { orden:38, sucursal:"Minga Guazú", tipo:"Renovación", estado:"A definir", inicio:"—", estimada:"—", apertura:"—", m2:"186.000", mes:"" },
+  { orden:39, sucursal:"C.D.E. Ciudad Nueva", tipo:"Renovación", estado:"A definir", inicio:"—", estimada:"—", apertura:"—", m2:"313.900", mes:"" },
+  { orden:40, sucursal:"San Juan Nepomuceno", tipo:"Renovación", estado:"A definir", inicio:"—", estimada:"—", apertura:"—", m2:"255.000", mes:"" },
+  { orden:41, sucursal:"Caazapá", tipo:"Renovación", estado:"A definir", inicio:"—", estimada:"—", apertura:"—", m2:"232.039", mes:"" },
+  { orden:42, sucursal:"Carapeguá", tipo:"Renovación", estado:"A definir", inicio:"—", estimada:"—", apertura:"—", m2:"162.870", mes:"" },
+  { orden:43, sucursal:"San Lorenzo Centro", tipo:"Renovación", estado:"A definir", inicio:"—", estimada:"—", apertura:"—", m2:"340.350", mes:"" },
+  { orden:44, sucursal:"Caacupé", tipo:"Renovación", estado:"A definir", inicio:"—", estimada:"—", apertura:"—", m2:"474.000", mes:"" },
+  { orden:45, sucursal:"Villeta", tipo:"Renovación", estado:"A definir", inicio:"—", estimada:"—", apertura:"—", m2:"203.300", mes:"" },
+  { orden:46, sucursal:"PJCaballero Centro", tipo:"Renovación", estado:"A definir", inicio:"—", estimada:"—", apertura:"—", m2:"320.750", mes:"" },
+  { orden:47, sucursal:"Santaní Mercado", tipo:"Renovación", estado:"A definir", inicio:"—", estimada:"—", apertura:"—", m2:"248.630", mes:"" },
+  { orden:48, sucursal:"Santaní Centro", tipo:"Renovación", estado:"A definir", inicio:"—", estimada:"—", apertura:"—", m2:"174.300", mes:"" },
+  { orden:49, sucursal:"Liberación", tipo:"Renovación", estado:"A definir", inicio:"—", estimada:"—", apertura:"—", m2:"364.280", mes:"" },
+  { orden:50, sucursal:"Loreto", tipo:"Renovación", estado:"A definir", inicio:"—", estimada:"—", apertura:"—", m2:"251.560", mes:"" },
+  { orden:51, sucursal:"Belén", tipo:"Renovación", estado:"A definir", inicio:"—", estimada:"—", apertura:"—", m2:"196.520", mes:"" },
+  { orden:52, sucursal:"Katueté", tipo:"Renovación", estado:"A definir", inicio:"—", estimada:"—", apertura:"—", m2:"412.050", mes:"" },
+  { orden:53, sucursal:"Acceso Sur", tipo:"Renovación", estado:"A definir", inicio:"—", estimada:"—", apertura:"—", m2:"294.570", mes:"" },
+  { orden:54, sucursal:"Caaguazú San Lorenzo", tipo:"Renovación", estado:"A definir", inicio:"—", estimada:"—", apertura:"—", m2:"183.170", mes:"" },
+  { orden:55, sucursal:"Ypacaraí", tipo:"Renovación", estado:"A definir", inicio:"—", estimada:"—", apertura:"—", m2:"397.180", mes:"" },
+  { orden:56, sucursal:"Luque Fábrica", tipo:"Renovación", estado:"A definir", inicio:"—", estimada:"—", apertura:"—", m2:"163.580", mes:"" },
+  { orden:57, sucursal:"Capiatá Ruta 2", tipo:"Renovación", estado:"No", inicio:"—", estimada:"—", apertura:"—", m2:"220.250", mes:"" },
+  { orden:58, sucursal:"Avda. Quinta", tipo:"Renovación", estado:"A definir", inicio:"—", estimada:"—", apertura:"—", m2:"225.640", mes:"" },
+  { orden:59, sucursal:"Luque Mora Cue", tipo:"Nuevo", estado:"A definir", inicio:"—", estimada:"—", apertura:"—", m2:"—", mes:"" }
+];
+
+const badgeMap = {
+  "Finalizado": { cls: "fin",  label: "Finalizado" },
+  "En proceso": { cls: "proc", label: "En proceso" },
+  "A iniciar":  { cls: "ini",  label: "A iniciar"  },
+  "A definir":  { cls: "def",  label: "A definir"  },
+  "No":         { cls: "no",   label: "Sin avance"  }
+};
+const chipMap = {
+  "Renovación": { cls: "renovacion", label: "Renovación" },
+  "Nuevo":      { cls: "nuevo",      label: "Nuevo"      },
+  "Mudanza":    { cls: "mudanza",    label: "Mudanza"    }
+};
+
+function buildRows(filter) {
+  const tbody = document.getElementById("tableBody");
+  tbody.innerHTML = "";
+  const filtered = filter === "all" ? data : data.filter(d => d.estado === filter);
+
+  let lastGroup = null;
+  filtered.forEach(row => {
+    const b = badgeMap[row.estado] || { cls: "def", label: row.estado };
+    const c = chipMap[row.tipo]    || { cls: "renovacion", label: row.tipo };
+
+    const isDatePending = (d) => (!d || d === "—" || d === "A definir");
+
+    tbody.innerHTML += `
+      <tr class="data-row" data-estado="${row.estado}">
+        <td class="orden">${row.orden}</td>
+        <td class="sucursal">${row.sucursal}</td>
+        <td><span class="chip ${c.cls}">${c.label}</span></td>
+        <td><span class="badge ${b.cls}"><span class="badge-dot"></span>${b.label}</span></td>
+        <td class="date-cell ${isDatePending(row.inicio) ? 'pending' : ''}">${row.inicio}</td>
+        <td class="date-cell ${isDatePending(row.estimada) ? 'pending' : ''}">${row.estimada}</td>
+        <td class="date-cell ${isDatePending(row.apertura) ? 'pending' : ''}">${row.apertura}</td>
+        <td class="date-cell" style="text-align:right">${row.m2}</td>
+      </tr>`;
+  });
+}
+
+function filterTable(filter, el) {
+  const tabs = document.querySelectorAll('.filter-tab');
+  tabs.forEach(t => {
+    t.className = 'filter-tab inactive';
+  });
+  if (filter === 'all') el.className = 'filter-tab active-all';
+  else if (filter === 'Finalizado') el.className = 'filter-tab active-fin';
+  else if (filter === 'En proceso') el.className = 'filter-tab active-proc';
+  else if (filter === 'A iniciar')  el.className = 'filter-tab active-ini';
+  else if (filter === 'A definir')  el.className = 'filter-tab active-def';
+  buildRows(filter);
+}
+
+buildRows('all');
+
+/* ── DONUT ── */
+new Chart(document.getElementById('donutChart'), {
+  type: 'doughnut',
+  data: {
+    labels: ['Finalizado', 'En proceso', 'A iniciar', 'A definir', 'Sin avance'],
+    datasets: [{
+      data: [15, 6, 7, 30, 1],
+      backgroundColor: ['#1D9E75', '#EF9F27', '#378ADD', '#B4B2A9', '#E24B4A'],
+      borderWidth: 2,
+      borderColor: '#fff',
+      hoverOffset: 6
+    }]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    cutout: '68%',
+    plugins: {
+      legend: { display: false },
+      tooltip: {
+        callbacks: {
+          label: (ctx) => ` ${ctx.label}: ${ctx.raw} (${Math.round(ctx.raw/59*100)}%)`
+        }
+      }
+    }
+  }
+});
+
+/* ── HORIZONTAL BAR ── */
+new Chart(document.getElementById('barChart'), {
+  type: 'bar',
+  data: {
+    labels: ['Renovación', 'Nuevo', 'Mudanza'],
+    datasets: [{
+      data: [44, 10, 5],
+      backgroundColor: ['#534AB7', '#185FA5', '#BA7517'],
+      borderRadius: 5,
+      borderSkipped: false,
+    }]
+  },
+  options: {
+    indexAxis: 'y',
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: { legend: { display: false } },
+    scales: {
+      x: { grid: { color: '#F1EFE8' }, ticks: { color: '#888780', font: { size: 11 } } },
+      y: { grid: { display: false }, ticks: { color: '#1B2A47', font: { size: 12, weight: '600' } } }
+    }
+  }
+});
+
+/* ── LINE CHART ── */
+new Chart(document.getElementById('lineChart'), {
+  type: 'bar',
+  data: {
+    labels: ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep'],
+    datasets: [{
+      label: 'Inauguraciones',
+      data: [2, 2, 3, 2, 0, 2, 3, 3, 4],
+      backgroundColor: '#1B2A47',
+      borderRadius: 4,
+      borderSkipped: false
+    }]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: { legend: { display: false } },
+    scales: {
+      x: { grid: { display: false }, ticks: { color: '#888780', font: { size: 10 } } },
+      y: {
+        grid: { color: '#F1EFE8' },
+        ticks: { stepSize: 1, color: '#888780', font: { size: 10 } },
+        beginAtZero: true
+      }
+    }
+  }
+});
+</script>
+</body>
+</html>
