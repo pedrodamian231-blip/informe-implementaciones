@@ -3,377 +3,108 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Informe de Avance — Implementaciones en Sucursales 2026</title>
+<title>Informe de Avance — Implementaciones en Sucursales</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', Arial, sans-serif; background: #F0F2F5; color: #1a1a2e; min-height: 100vh; }
 
-  body {
-    font-family: 'Segoe UI', Arial, sans-serif;
-    background: #F0F2F5;
-    color: #1a1a2e;
-    min-height: 100vh;
-  }
-
-  /* ── HEADER ── */
   .header {
-    background: #1B2A47;
-    padding: 0 40px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    height: 72px;
-    position: sticky;
-    top: 0;
-    z-index: 100;
+    background: #1B2A47; padding: 0 40px;
+    display: flex; align-items: center; justify-content: space-between;
+    height: 72px; position: sticky; top: 0; z-index: 100;
   }
-  .header-title {
-    color: #fff;
-    font-size: 18px;
-    font-weight: 600;
-    letter-spacing: 0.01em;
-  }
-  .header-meta {
-    color: rgba(255,255,255,0.55);
-    font-size: 12px;
-    margin-top: 2px;
-  }
-  .logo-wrapper {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
-  .logo-icon {
-    width: 36px;
-    height: 36px;
-  }
-  .logo-text {
-    color: #fff;
-    font-size: 20px;
-    font-weight: 700;
-    letter-spacing: -0.5px;
-  }
-  .logo-text span { color: #F5A623; }
+  .header-title { color: #fff; font-size: 18px; font-weight: 600; letter-spacing: 0.01em; }
+  .header-meta { color: rgba(255,255,255,0.55); font-size: 12px; margin-top: 2px; }
+  .logo-img { height: 38px; filter: brightness(0) invert(1); }
 
-  /* ── LAYOUT ── */
   .container { max-width: 1200px; margin: 0 auto; padding: 32px 24px; }
 
-  /* ── KPI STRIP ── */
-  .kpi-grid {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 16px;
-    margin-bottom: 28px;
-  }
-  .kpi-card {
-    background: #fff;
-    border-radius: 12px;
-    padding: 20px 22px;
-    border-top: 4px solid transparent;
-    position: relative;
-    overflow: hidden;
-  }
+  .kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 28px; }
+  .kpi-card { background: #fff; border-radius: 12px; padding: 20px 22px; border-top: 4px solid transparent; position: relative; overflow: hidden; }
   .kpi-card.finalizadas { border-top-color: #1D9E75; }
   .kpi-card.en-proceso  { border-top-color: #F5A623; }
-  .kpi-card.a-iniciar   { border-top-color: #378ADD; }
+  .kpi-card.a-iniciar   { border-top-color: #1557A0; }
   .kpi-card.a-definir   { border-top-color: #888780; }
-  .kpi-label {
-    font-size: 11px;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-    color: #888780;
-    margin-bottom: 8px;
-  }
-  .kpi-number {
-    font-size: 42px;
-    font-weight: 700;
-    line-height: 1;
-    color: #1B2A47;
-  }
+  .kpi-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: #888780; margin-bottom: 8px; }
+  .kpi-number { font-size: 42px; font-weight: 700; line-height: 1; }
   .kpi-card.finalizadas .kpi-number { color: #0F6E56; }
   .kpi-card.en-proceso  .kpi-number { color: #BA7517; }
-  .kpi-card.a-iniciar   .kpi-number { color: #185FA5; }
+  .kpi-card.a-iniciar   .kpi-number { color: #1557A0; }
   .kpi-card.a-definir   .kpi-number { color: #5F5E5A; }
-  .kpi-sublabel {
-    font-size: 12px;
-    color: #888780;
-    margin-top: 6px;
-  }
-  .kpi-icon {
-    position: absolute;
-    right: 18px;
-    top: 18px;
-    font-size: 26px;
-    opacity: 0.13;
-  }
-  .kpi-card.finalizadas .kpi-icon { color: #1D9E75; }
-  .kpi-card.en-proceso  .kpi-icon { color: #F5A623; }
-  .kpi-card.a-iniciar   .kpi-icon { color: #378ADD; }
-  .kpi-card.a-definir   .kpi-icon { color: #888780; }
+  .kpi-sublabel { font-size: 12px; color: #888780; margin-top: 6px; }
+  .kpi-icon { position: absolute; right: 18px; top: 18px; font-size: 28px; opacity: 0.12; }
 
-  /* ── SECTION TITLE ── */
-  .section-title {
-    font-size: 13px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
-    color: #888780;
-    margin-bottom: 14px;
-    padding-bottom: 8px;
-    border-bottom: 1px solid #E8E9EC;
-  }
-
-  /* ── CHARTS ROW ── */
-  .charts-row {
-    display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
-    gap: 16px;
-    margin-bottom: 28px;
-  }
-  .chart-card {
-    background: #fff;
-    border-radius: 12px;
-    padding: 22px;
-  }
-  .chart-card-title {
-    font-size: 13px;
-    font-weight: 600;
-    color: #1B2A47;
-    margin-bottom: 16px;
-  }
+  .charts-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; margin-bottom: 28px; }
+  .chart-card { background: #fff; border-radius: 12px; padding: 22px; }
+  .chart-card-title { font-size: 13px; font-weight: 600; color: #1B2A47; margin-bottom: 16px; }
   .chart-wrap { position: relative; width: 100%; }
 
-  /* ── PROGRESS BAR ── */
-  .progress-bar-wrap {
-    margin-bottom: 10px;
-  }
-  .progress-bar-label {
-    display: flex;
-    justify-content: space-between;
-    font-size: 12px;
-    color: #444441;
-    margin-bottom: 5px;
-    font-weight: 500;
-  }
-  .progress-bar-bg {
-    background: #F1EFE8;
-    border-radius: 4px;
-    height: 8px;
-    overflow: hidden;
-  }
-  .progress-bar-fill {
-    height: 100%;
-    border-radius: 4px;
-    transition: width 0.6s ease;
-  }
+  .legend-row { display: flex; gap: 14px; flex-wrap: wrap; font-size: 11px; color: #5F5E5A; margin-top: 14px; align-items: center; flex-direction: column; gap: 6px; align-items: flex-start; }
+  .legend-item { display: flex; align-items: center; gap: 6px; font-weight: 500; }
+  .legend-box { width: 10px; height: 10px; border-radius: 2px; flex-shrink: 0; }
 
-  /* ── TIMELINE TABLE ── */
-  .timeline-section { margin-bottom: 28px; }
-  .table-card {
-    background: #fff;
-    border-radius: 12px;
-    overflow: hidden;
-  }
-  .table-header {
-    padding: 18px 24px 14px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    border-bottom: 1px solid #F1EFE8;
-  }
-  .table-header-title {
-    font-size: 14px;
-    font-weight: 600;
-    color: #1B2A47;
-  }
-  .filter-tabs {
-    display: flex;
-    gap: 6px;
-  }
-  .filter-tab {
-    padding: 5px 14px;
-    border-radius: 20px;
-    font-size: 11px;
-    font-weight: 600;
-    cursor: pointer;
-    border: 1.5px solid transparent;
-    transition: all 0.15s;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-  }
-  .filter-tab.active-all    { background: #1B2A47; color: #fff; border-color: #1B2A47; }
-  .filter-tab.active-fin    { background: #E1F5EE; color: #0F6E56; border-color: #5DCAA5; }
-  .filter-tab.active-proc   { background: #FAEEDA; color: #854F0B; border-color: #EF9F27; }
-  .filter-tab.active-ini    { background: #E6F1FB; color: #185FA5; border-color: #85B7EB; }
-  .filter-tab.active-def    { background: #F1EFE8; color: #444441; border-color: #B4B2A9; }
-  .filter-tab.inactive {
-    background: #fff;
-    color: #888780;
-    border-color: #E8E9EC;
-  }
-  .filter-tab.inactive:hover { border-color: #B4B2A9; }
+  .table-card { background: #fff; border-radius: 12px; overflow: hidden; margin-bottom: 28px; }
+  .table-header { padding: 18px 24px 14px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #F1EFE8; flex-wrap: wrap; gap: 10px; }
+  .table-header-title { font-size: 14px; font-weight: 600; color: #1B2A47; }
+  .filter-tabs { display: flex; gap: 6px; flex-wrap: wrap; }
+  .filter-tab { padding: 5px 14px; border-radius: 20px; font-size: 11px; font-weight: 600; cursor: pointer; border: 1.5px solid transparent; transition: all 0.15s; text-transform: uppercase; letter-spacing: 0.05em; }
+  .active-all  { background: #1B2A47; color: #fff; border-color: #1B2A47; }
+  .active-fin  { background: #E1F5EE; color: #0F6E56; border-color: #5DCAA5; }
+  .active-proc { background: #FAEEDA; color: #854F0B; border-color: #EF9F27; }
+  .active-ini  { background: #E6EEF7; color: #1557A0; border-color: #7BAAD4; }
+  .active-def  { background: #F1EFE8; color: #444441; border-color: #B4B2A9; }
+  .inactive { background: #fff; color: #888780; border-color: #E8E9EC; }
+  .inactive:hover { border-color: #B4B2A9; }
 
-  table.main-table {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 13px;
-  }
-  table.main-table thead th {
-    background: #F8F8F6;
-    color: #5F5E5A;
-    font-size: 11px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.07em;
-    padding: 10px 16px;
-    text-align: left;
-    border-bottom: 1px solid #E8E9EC;
-  }
-  table.main-table tbody tr {
-    border-bottom: 1px solid #F1EFE8;
-    transition: background 0.1s;
-  }
+  table.main-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  table.main-table thead th { background: #F8F8F6; color: #5F5E5A; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em; padding: 10px 16px; text-align: left; border-bottom: 1px solid #E8E9EC; }
+  table.main-table tbody tr { border-bottom: 1px solid #F1EFE8; transition: background 0.1s; }
   table.main-table tbody tr:hover { background: #F8F8F6; }
   table.main-table tbody tr:last-child { border-bottom: none; }
-  table.main-table td {
-    padding: 11px 16px;
-    color: #1a1a2e;
-    vertical-align: middle;
-  }
-  td.orden {
-    font-weight: 700;
-    color: #B4B2A9;
-    font-size: 12px;
-    width: 44px;
-  }
-  td.sucursal {
-    font-weight: 600;
-    color: #1B2A47;
-  }
-  .month-label {
-    font-size: 10px;
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
-    font-weight: 700;
-    color: #B4B2A9;
-    padding: 8px 16px 4px;
-    border-bottom: 1px solid #F1EFE8;
-    background: #FAFAFA;
-  }
+  table.main-table td { padding: 11px 16px; color: #1a1a2e; vertical-align: middle; }
+  td.orden { font-weight: 700; color: #B4B2A9; font-size: 12px; width: 44px; }
+  td.sucursal { font-weight: 600; color: #1B2A47; }
 
-  /* ── STATUS BADGE ── */
-  .badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 5px;
-    padding: 3px 10px;
-    border-radius: 20px;
-    font-size: 11px;
-    font-weight: 700;
-    letter-spacing: 0.04em;
-    text-transform: uppercase;
-    white-space: nowrap;
-  }
-  .badge-dot {
-    width: 6px;
-    height: 6px;
-    border-radius: 50%;
-    flex-shrink: 0;
-  }
+  .badge { display: inline-flex; align-items: center; gap: 5px; padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; white-space: nowrap; }
+  .badge-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
   .badge.fin  { background: #E1F5EE; color: #085041; }
   .badge.fin .badge-dot { background: #1D9E75; }
   .badge.proc { background: #FAEEDA; color: #633806; }
   .badge.proc .badge-dot { background: #EF9F27; }
-  .badge.ini  { background: #E6F1FB; color: #0C447C; }
-  .badge.ini .badge-dot { background: #378ADD; }
+  .badge.ini  { background: #E6EEF7; color: #1557A0; }
+  .badge.ini .badge-dot { background: #1557A0; }
   .badge.def  { background: #F1EFE8; color: #444441; }
   .badge.def .badge-dot { background: #888780; }
   .badge.no   { background: #FCEBEB; color: #501313; }
   .badge.no .badge-dot { background: #E24B4A; }
 
-  /* ── SITUACION CHIP ── */
-  .chip {
-    font-size: 11px;
-    font-weight: 600;
-    padding: 2px 8px;
-    border-radius: 4px;
-    display: inline-block;
-  }
+  .chip { font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 4px; display: inline-block; }
   .chip.renovacion { background: #EEEDFE; color: #3C3489; }
   .chip.nuevo      { background: #E6F1FB; color: #185FA5; }
   .chip.mudanza    { background: #FAEEDA; color: #854F0B; }
 
-  /* ── DATE ── */
-  .date-cell {
-    font-size: 12px;
-    color: #5F5E5A;
-    font-variant-numeric: tabular-nums;
-  }
+  .date-cell { font-size: 12px; color: #5F5E5A; font-variant-numeric: tabular-nums; }
   .date-cell.pending { color: #B4B2A9; font-style: italic; }
 
-  /* ── FOOTER ── */
-  .footer {
-    text-align: center;
-    font-size: 11px;
-    color: #B4B2A9;
-    padding: 24px 0 32px;
-    border-top: 1px solid #E8E9EC;
-    margin-top: 8px;
-  }
+  .year-label { font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; color: #fff; background: #1B2A47; padding: 6px 16px; }
+
+  .footer { text-align: center; font-size: 11px; color: #B4B2A9; padding: 24px 0 32px; border-top: 1px solid #E8E9EC; margin-top: 8px; }
   .footer strong { color: #5F5E5A; }
-
-  /* ── LEGEND ROW ── */
-  .legend-row {
-    display: flex;
-    gap: 20px;
-    flex-wrap: wrap;
-    font-size: 11px;
-    color: #5F5E5A;
-    margin-bottom: 10px;
-    align-items: center;
-  }
-  .legend-item {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    font-weight: 600;
-  }
-  .legend-box {
-    width: 10px;
-    height: 10px;
-    border-radius: 2px;
-  }
-
-  @media print {
-    body { background: #fff; }
-    .header { position: relative; }
-    .filter-tabs { display: none; }
-  }
 </style>
 </head>
 <body>
 
-<!-- HEADER -->
 <header class="header">
   <div>
     <div class="header-title">Informe de Avance — Implementaciones en Sucursales</div>
-    <div class="header-meta">Actualizado al 23 de junio de 2026 · Plan 2025–2026</div>
+    <div class="header-meta">Actualizado al 23 de junio de 2026 &middot; Plan 2025–2026</div>
   </div>
-  <div class="logo-wrapper">
-    <svg class="logo-icon" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <rect width="36" height="36" rx="6" fill="#F5A623"/>
-      <rect x="8" y="10" width="4" height="16" rx="1" fill="#1B2A47"/>
-      <rect x="16" y="6" width="4" height="24" rx="1" fill="#1B2A47"/>
-      <rect x="24" y="14" width="4" height="12" rx="1" fill="#1B2A47"/>
-    </svg>
-    <div class="logo-text">Inver<span>fin</span></div>
-  </div>
+  <img class="logo-img" src="data:image/png;base64,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" alt="Inverfin">
 </header>
 
 <div class="container">
 
-  <!-- KPI STRIP -->
   <div class="kpi-grid">
     <div class="kpi-card finalizadas">
       <div class="kpi-label">Finalizadas</div>
@@ -401,278 +132,266 @@
     </div>
   </div>
 
-  <!-- CHARTS ROW -->
   <div class="charts-row">
-
-    <!-- Avance total -->
     <div class="chart-card">
       <div class="chart-card-title">Avance general del plan</div>
-      <div class="chart-wrap" style="height:180px;">
-        <canvas id="donutChart" role="img" aria-label="Gráfico de donut: 15 finalizadas, 6 en proceso, 7 a iniciar, 30 a definir, 1 no aplica de 59 sucursales totales"></canvas>
+      <div class="chart-wrap" style="height:170px;">
+        <canvas id="donutChart" role="img" aria-label="Gráfico de donut: 15 finalizadas, 6 en proceso, 7 a iniciar, 30 a definir, 1 sin avance">Distribución de 59 sucursales por estado.</canvas>
       </div>
-      <div style="margin-top:14px;">
-        <div class="legend-row" style="flex-direction:column; gap:7px;">
-          <div class="legend-item"><div class="legend-box" style="background:#1D9E75"></div>Finalizado — 15</div>
-          <div class="legend-item"><div class="legend-box" style="background:#EF9F27"></div>En proceso — 6</div>
-          <div class="legend-item"><div class="legend-box" style="background:#378ADD"></div>A iniciar — 7</div>
-          <div class="legend-item"><div class="legend-box" style="background:#B4B2A9"></div>A definir — 30</div>
-          <div class="legend-item"><div class="legend-box" style="background:#E24B4A"></div>Sin avance — 1</div>
-        </div>
+      <div class="legend-row">
+        <div class="legend-item"><div class="legend-box" style="background:#1D9E75"></div>Finalizado — 15</div>
+        <div class="legend-item"><div class="legend-box" style="background:#EF9F27"></div>En proceso — 6</div>
+        <div class="legend-item"><div class="legend-box" style="background:#1557A0"></div>A iniciar — 7</div>
+        <div class="legend-item"><div class="legend-box" style="background:#B4B2A9"></div>A definir — 30</div>
+        <div class="legend-item"><div class="legend-box" style="background:#E24B4A"></div>Sin avance — 1</div>
       </div>
     </div>
 
-    <!-- Por tipo -->
     <div class="chart-card">
       <div class="chart-card-title">Tipo de intervención</div>
-      <div class="chart-wrap" style="height:180px;">
-        <canvas id="barChart" role="img" aria-label="Barras horizontales: Renovación 44, Nuevo 10, Mudanza 5"></canvas>
+      <div class="chart-wrap" style="height:170px;">
+        <canvas id="barChart" role="img" aria-label="Barras: Renovación 44, Nuevo 10, Mudanza 5">44 renovaciones, 10 nuevos, 5 mudanzas.</canvas>
       </div>
-      <div style="margin-top:16px; font-size:12px; color:#5F5E5A; line-height:1.6;">
-        <strong>44</strong> renovaciones · <strong>10</strong> locales nuevos · <strong>5</strong> mudanzas
+      <div style="margin-top:14px; font-size:12px; color:#5F5E5A; line-height:1.8;">
+        <strong>44</strong> renovaciones &nbsp;·&nbsp; <strong>10</strong> locales nuevos &nbsp;·&nbsp; <strong>5</strong> mudanzas
       </div>
     </div>
 
-    <!-- Progreso mensual -->
     <div class="chart-card">
-      <div class="chart-card-title">Inauguraciones por mes (2026)</div>
-      <div class="chart-wrap" style="height:180px;">
-        <canvas id="lineChart" role="img" aria-label="Barras de inauguraciones por mes de 2026"></canvas>
+      <div class="chart-card-title">Inauguraciones por año y mes</div>
+      <div class="chart-wrap" style="height:170px;">
+        <canvas id="lineChart" role="img" aria-label="Inauguraciones mensuales 2025 y 2026">Detalle de inauguraciones por mes.</canvas>
+      </div>
+      <div style="display:flex; gap:16px; margin-top:14px; font-size:11px; font-weight:600; color:#5F5E5A;">
+        <span style="display:flex;align-items:center;gap:5px;"><span style="width:10px;height:3px;background:#C0272D;display:inline-block;border-radius:2px;"></span>2025</span>
+        <span style="display:flex;align-items:center;gap:5px;"><span style="width:10px;height:3px;background:#1B2A47;display:inline-block;border-radius:2px;"></span>2026</span>
       </div>
     </div>
-
   </div>
 
-  <!-- TIMELINE TABLE -->
-  <div class="timeline-section">
-    <div class="table-card">
-      <div class="table-header">
-        <div class="table-header-title">Calendario de implementación & priorización</div>
-        <div class="filter-tabs">
-          <button class="filter-tab active-all" onclick="filterTable('all', this)">Todos</button>
-          <button class="filter-tab inactive" onclick="filterTable('Finalizado', this)">Finalizados</button>
-          <button class="filter-tab inactive" onclick="filterTable('En proceso', this)">En proceso</button>
-          <button class="filter-tab inactive" onclick="filterTable('A iniciar', this)">A iniciar</button>
-          <button class="filter-tab inactive" onclick="filterTable('A definir', this)">A definir</button>
-        </div>
+  <div class="table-card">
+    <div class="table-header">
+      <div class="table-header-title">Calendario de implementación &amp; priorización</div>
+      <div class="filter-tabs">
+        <button class="filter-tab active-all" onclick="filterTable('all', this)">Todos</button>
+        <button class="filter-tab inactive" onclick="filterTable('Finalizado', this)">Finalizados</button>
+        <button class="filter-tab inactive" onclick="filterTable('En proceso', this)">En proceso</button>
+        <button class="filter-tab inactive" onclick="filterTable('A iniciar', this)">A iniciar</button>
+        <button class="filter-tab inactive" onclick="filterTable('A definir', this)">A definir</button>
       </div>
-      <table class="main-table" id="mainTable">
-        <thead>
-          <tr>
-            <th>#</th>
-            <th>Sucursal</th>
-            <th>Tipo</th>
-            <th>Estado</th>
-            <th>Inicio obras</th>
-            <th>Fecha estimada inauguración</th>
-            <th>Apertura real</th>
-            <th>M²</th>
-          </tr>
-        </thead>
-        <tbody id="tableBody">
-        </tbody>
-      </table>
     </div>
+    <table class="main-table" id="mainTable">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Sucursal</th>
+          <th>Tipo</th>
+          <th>Estado</th>
+          <th>Inicio obras</th>
+          <th>Inauguración estimada</th>
+          <th>Apertura real</th>
+        </tr>
+      </thead>
+      <tbody id="tableBody"></tbody>
+    </table>
   </div>
 
   <div class="footer">
-    Generado para <strong>Inverfin S.A.</strong> — Gerencia de Proyectos e Implementaciones · Plan de Sucursales 2025–2026
+    Generado para <strong>Inverfin S.A.</strong> — Gerencia de Proyectos e Implementaciones &middot; Plan de Sucursales 2025–2026
   </div>
 
 </div>
 
 <script>
 const data = [
-  { orden:1, sucursal:"Luque Av.Gral.Aquino", tipo:"Renovación", estado:"Finalizado", inicio:"01/07/2025", estimada:"31/07/2025", apertura:"31/08/2025", m2:"161.180", mes:"ago-25" },
-  { orden:2, sucursal:"San Lorenzo M.O.G.", tipo:"Mudanza", estado:"Finalizado", inicio:"20/10/2025", estimada:"30/11/2025", apertura:"30/11/2025", m2:"188.820", mes:"nov-25" },
-  { orden:3, sucursal:"Villa Elisa", tipo:"Nuevo", estado:"Finalizado", inicio:"01/09/2025", estimada:"31/10/2025", apertura:"31/10/2025", m2:"145.000", mes:"oct-25" },
-  { orden:4, sucursal:"Arroyos y Esteros", tipo:"Renovación", estado:"Finalizado", inicio:"01/09/2025", estimada:"31/12/2025", apertura:"31/12/2025", m2:"143.640", mes:"dic-25" },
-  { orden:5, sucursal:"PJCaballero Terminal", tipo:"Nuevo", estado:"Finalizado", inicio:"01/11/2025", estimada:"30/11/2025", apertura:"30/11/2025", m2:"365.000", mes:"nov-25" },
-  { orden:6, sucursal:"Emboscada", tipo:"Nuevo", estado:"Finalizado", inicio:"01/01/2026", estimada:"02/02/2026", apertura:"25/02/2026", m2:"70.000", mes:"feb-26" },
-  { orden:7, sucursal:"Mariano Roque Alonso", tipo:"Renovación", estado:"Finalizado", inicio:"19/01/2026", estimada:"28/02/2026", apertura:"13/03/2026", m2:"231.330", mes:"mar-26" },
-  { orden:8, sucursal:"Luque Cañada", tipo:"Nuevo", estado:"Finalizado", inicio:"13/01/2026", estimada:"—", apertura:"—", m2:"114.000", mes:"ene-26" },
-  { orden:9, sucursal:"Itaugua", tipo:"Mudanza", estado:"Finalizado", inicio:"02/02/2026", estimada:"—", apertura:"—", m2:"241.000", mes:"feb-26" },
-  { orden:10, sucursal:"Lambaré", tipo:"Nuevo", estado:"Finalizado", inicio:"01/10/2025", estimada:"23/02/2026", apertura:"10/03/2026", m2:"509.500", mes:"mar-26" },
-  { orden:11, sucursal:"Laguna Grande F.M", tipo:"Renovación", estado:"Finalizado", inicio:"02/02/2026", estimada:"31/03/2026", apertura:"31/03/2026", m2:"233.600", mes:"mar-26" },
-  { orden:12, sucursal:"Villa Hayes Nuevo", tipo:"Nuevo", estado:"Finalizado", inicio:"02/02/2026", estimada:"30/04/2026", apertura:"—", m2:"230.000", mes:"abr-26" },
-  { orden:13, sucursal:"Areguá", tipo:"Renovación", estado:"Finalizado", inicio:"04/03/2026", estimada:"28/04/2026", apertura:"—", m2:"293.190", mes:"abr-26" },
-  { orden:15, sucursal:"Capitán Miranda", tipo:"Mudanza", estado:"Finalizado", inicio:"08/04/2026", estimada:"16/06/2026", apertura:"—", m2:"248.000", mes:"jun-26" },
-  { orden:16, sucursal:"Yasy Cañy", tipo:"Mudanza", estado:"Finalizado", inicio:"22/04/2026", estimada:"10/06/2026", apertura:"—", m2:"216.000", mes:"jun-26" },
-  { orden:14, sucursal:"Luque Mercado", tipo:"Renovación", estado:"En proceso", inicio:"09/03/2026", estimada:"A definir", apertura:"—", m2:"429.000", mes:"" },
-  { orden:17, sucursal:"Naranjal", tipo:"Nuevo", estado:"En proceso", inicio:"29/04/2026", estimada:"11/06/2026", apertura:"—", m2:"140.000", mes:"" },
-  { orden:18, sucursal:"Ypané", tipo:"Renovación", estado:"En proceso", inicio:"01/06/2026", estimada:"02/07/2026", apertura:"—", m2:"139.600", mes:"" },
-  { orden:19, sucursal:"Paraguarí", tipo:"Renovación", estado:"En proceso", inicio:"15/06/2026", estimada:"07/07/2026", apertura:"—", m2:"174.000", mes:"" },
-  { orden:20, sucursal:"Horqueta", tipo:"Renovación", estado:"En proceso", inicio:"15/06/2026", estimada:"20/08/2026", apertura:"—", m2:"452.740", mes:"" },
-  { orden:21, sucursal:"La Colmena", tipo:"Mudanza", estado:"En proceso", inicio:"15/06/2026", estimada:"02/08/2026", apertura:"—", m2:"—", mes:"" },
-  { orden:22, sucursal:"Santa Rosa Misiones", tipo:"Renovación", estado:"A iniciar", inicio:"22/06/2026", estimada:"07/07/2026", apertura:"—", m2:"—", mes:"" },
-  { orden:23, sucursal:"Hohenau", tipo:"Renovación", estado:"A iniciar", inicio:"01/07/2026", estimada:"04/08/2026", apertura:"—", m2:"300.000", mes:"" },
-  { orden:24, sucursal:"Limpio", tipo:"Renovación", estado:"A iniciar", inicio:"13/07/2026", estimada:"11/09/2026", apertura:"—", m2:"315.000", mes:"" },
-  { orden:25, sucursal:"Pilar", tipo:"Nuevo", estado:"A iniciar", inicio:"15/07/2026", estimada:"14/09/2026", apertura:"—", m2:"181.125", mes:"" },
-  { orden:26, sucursal:"Encarnación", tipo:"Renovación", estado:"A iniciar", inicio:"01/08/2026", estimada:"13/09/2026", apertura:"—", m2:"296.640", mes:"" },
-  { orden:27, sucursal:"Encarnación 2", tipo:"Nuevo", estado:"A iniciar", inicio:"01/08/2026", estimada:"18/09/2026", apertura:"—", m2:"325.000", mes:"" },
-  { orden:28, sucursal:"Concepción Av.Pinedo", tipo:"Renovación", estado:"A iniciar", inicio:"01/08/2026", estimada:"22/09/2026", apertura:"—", m2:"332.280", mes:"" },
-  { orden:29, sucursal:"Ita", tipo:"Renovación", estado:"A definir", inicio:"01/08/2026", estimada:"19/09/2026", apertura:"—", m2:"149.520", mes:"" },
-  { orden:30, sucursal:"San Ignacio Misiones", tipo:"Renovación", estado:"A definir", inicio:"01/08/2026", estimada:"26/09/2026", apertura:"—", m2:"—", mes:"" },
-  { orden:31, sucursal:"Coronel Bogado", tipo:"Renovación", estado:"A definir", inicio:"—", estimada:"—", apertura:"—", m2:"294.120", mes:"" },
-  { orden:32, sucursal:"María Auxiliadora", tipo:"Renovación", estado:"A definir", inicio:"—", estimada:"—", apertura:"—", m2:"381.737", mes:"" },
-  { orden:33, sucursal:"Caaguazú Centro", tipo:"Renovación", estado:"A definir", inicio:"—", estimada:"—", apertura:"—", m2:"546.560", mes:"" },
-  { orden:34, sucursal:"Santa Rita", tipo:"Renovación", estado:"A definir", inicio:"—", estimada:"—", apertura:"—", m2:"230.000", mes:"" },
-  { orden:35, sucursal:"Hernandarias", tipo:"Renovación", estado:"A definir", inicio:"—", estimada:"—", apertura:"—", m2:"980.980", mes:"" },
-  { orden:36, sucursal:"Pdte. Franco Centro", tipo:"Renovación", estado:"A definir", inicio:"—", estimada:"—", apertura:"—", m2:"252.400", mes:"" },
-  { orden:37, sucursal:"C.D.E. Mercado", tipo:"Renovación", estado:"A definir", inicio:"—", estimada:"—", apertura:"—", m2:"141.960", mes:"" },
-  { orden:38, sucursal:"Minga Guazú", tipo:"Renovación", estado:"A definir", inicio:"—", estimada:"—", apertura:"—", m2:"186.000", mes:"" },
-  { orden:39, sucursal:"C.D.E. Ciudad Nueva", tipo:"Renovación", estado:"A definir", inicio:"—", estimada:"—", apertura:"—", m2:"313.900", mes:"" },
-  { orden:40, sucursal:"San Juan Nepomuceno", tipo:"Renovación", estado:"A definir", inicio:"—", estimada:"—", apertura:"—", m2:"255.000", mes:"" },
-  { orden:41, sucursal:"Caazapá", tipo:"Renovación", estado:"A definir", inicio:"—", estimada:"—", apertura:"—", m2:"232.039", mes:"" },
-  { orden:42, sucursal:"Carapeguá", tipo:"Renovación", estado:"A definir", inicio:"—", estimada:"—", apertura:"—", m2:"162.870", mes:"" },
-  { orden:43, sucursal:"San Lorenzo Centro", tipo:"Renovación", estado:"A definir", inicio:"—", estimada:"—", apertura:"—", m2:"340.350", mes:"" },
-  { orden:44, sucursal:"Caacupé", tipo:"Renovación", estado:"A definir", inicio:"—", estimada:"—", apertura:"—", m2:"474.000", mes:"" },
-  { orden:45, sucursal:"Villeta", tipo:"Renovación", estado:"A definir", inicio:"—", estimada:"—", apertura:"—", m2:"203.300", mes:"" },
-  { orden:46, sucursal:"PJCaballero Centro", tipo:"Renovación", estado:"A definir", inicio:"—", estimada:"—", apertura:"—", m2:"320.750", mes:"" },
-  { orden:47, sucursal:"Santaní Mercado", tipo:"Renovación", estado:"A definir", inicio:"—", estimada:"—", apertura:"—", m2:"248.630", mes:"" },
-  { orden:48, sucursal:"Santaní Centro", tipo:"Renovación", estado:"A definir", inicio:"—", estimada:"—", apertura:"—", m2:"174.300", mes:"" },
-  { orden:49, sucursal:"Liberación", tipo:"Renovación", estado:"A definir", inicio:"—", estimada:"—", apertura:"—", m2:"364.280", mes:"" },
-  { orden:50, sucursal:"Loreto", tipo:"Renovación", estado:"A definir", inicio:"—", estimada:"—", apertura:"—", m2:"251.560", mes:"" },
-  { orden:51, sucursal:"Belén", tipo:"Renovación", estado:"A definir", inicio:"—", estimada:"—", apertura:"—", m2:"196.520", mes:"" },
-  { orden:52, sucursal:"Katueté", tipo:"Renovación", estado:"A definir", inicio:"—", estimada:"—", apertura:"—", m2:"412.050", mes:"" },
-  { orden:53, sucursal:"Acceso Sur", tipo:"Renovación", estado:"A definir", inicio:"—", estimada:"—", apertura:"—", m2:"294.570", mes:"" },
-  { orden:54, sucursal:"Caaguazú San Lorenzo", tipo:"Renovación", estado:"A definir", inicio:"—", estimada:"—", apertura:"—", m2:"183.170", mes:"" },
-  { orden:55, sucursal:"Ypacaraí", tipo:"Renovación", estado:"A definir", inicio:"—", estimada:"—", apertura:"—", m2:"397.180", mes:"" },
-  { orden:56, sucursal:"Luque Fábrica", tipo:"Renovación", estado:"A definir", inicio:"—", estimada:"—", apertura:"—", m2:"163.580", mes:"" },
-  { orden:57, sucursal:"Capiatá Ruta 2", tipo:"Renovación", estado:"No", inicio:"—", estimada:"—", apertura:"—", m2:"220.250", mes:"" },
-  { orden:58, sucursal:"Avda. Quinta", tipo:"Renovación", estado:"A definir", inicio:"—", estimada:"—", apertura:"—", m2:"225.640", mes:"" },
-  { orden:59, sucursal:"Luque Mora Cue", tipo:"Nuevo", estado:"A definir", inicio:"—", estimada:"—", apertura:"—", m2:"—", mes:"" }
+  {orden:1, sucursal:"Luque Av.Gral.Aquino", tipo:"Renovación", estado:"Finalizado", anio:2025, inicio:"01/07/2025", estimada:"31/07/2025", apertura:"31/08/2025"},
+  {orden:2, sucursal:"San Lorenzo M.O.G.", tipo:"Mudanza", estado:"Finalizado", anio:2025, inicio:"20/10/2025", estimada:"30/11/2025", apertura:"30/11/2025"},
+  {orden:3, sucursal:"Villa Elisa", tipo:"Nuevo", estado:"Finalizado", anio:2025, inicio:"01/09/2025", estimada:"31/10/2025", apertura:"31/10/2025"},
+  {orden:4, sucursal:"Arroyos y Esteros", tipo:"Renovación", estado:"Finalizado", anio:2025, inicio:"01/09/2025", estimada:"31/12/2025", apertura:"31/12/2025"},
+  {orden:5, sucursal:"PJCaballero Terminal", tipo:"Nuevo", estado:"Finalizado", anio:2025, inicio:"01/11/2025", estimada:"30/11/2025", apertura:"30/11/2025"},
+  {orden:6, sucursal:"Emboscada", tipo:"Nuevo", estado:"Finalizado", anio:2026, inicio:"01/01/2026", estimada:"02/02/2026", apertura:"25/02/2026"},
+  {orden:7, sucursal:"Mariano Roque Alonso", tipo:"Renovación", estado:"Finalizado", anio:2026, inicio:"19/01/2026", estimada:"28/02/2026", apertura:"13/03/2026"},
+  {orden:8, sucursal:"Luque Cañada", tipo:"Nuevo", estado:"Finalizado", anio:2026, inicio:"13/01/2026", estimada:"—", apertura:"—"},
+  {orden:9, sucursal:"Itauguá", tipo:"Mudanza", estado:"Finalizado", anio:2026, inicio:"02/02/2026", estimada:"—", apertura:"—"},
+  {orden:10, sucursal:"Lambaré", tipo:"Nuevo", estado:"Finalizado", anio:2026, inicio:"01/10/2025", estimada:"23/02/2026", apertura:"10/03/2026"},
+  {orden:11, sucursal:"Laguna Grande F.M", tipo:"Renovación", estado:"Finalizado", anio:2026, inicio:"02/02/2026", estimada:"31/03/2026", apertura:"31/03/2026"},
+  {orden:12, sucursal:"Villa Hayes Nuevo", tipo:"Nuevo", estado:"Finalizado", anio:2026, inicio:"02/02/2026", estimada:"30/04/2026", apertura:"—"},
+  {orden:13, sucursal:"Areguá", tipo:"Renovación", estado:"Finalizado", anio:2026, inicio:"04/03/2026", estimada:"28/04/2026", apertura:"—"},
+  {orden:15, sucursal:"Capitán Miranda", tipo:"Mudanza", estado:"Finalizado", anio:2026, inicio:"08/04/2026", estimada:"16/06/2026", apertura:"—"},
+  {orden:16, sucursal:"Yasy Cañy", tipo:"Mudanza", estado:"Finalizado", anio:2026, inicio:"22/04/2026", estimada:"10/06/2026", apertura:"—"},
+  {orden:14, sucursal:"Luque Mercado", tipo:"Renovación", estado:"En proceso", anio:2026, inicio:"09/03/2026", estimada:"A definir", apertura:"—"},
+  {orden:17, sucursal:"Naranjal", tipo:"Nuevo", estado:"En proceso", anio:2026, inicio:"29/04/2026", estimada:"11/06/2026", apertura:"—"},
+  {orden:18, sucursal:"Ypané", tipo:"Renovación", estado:"En proceso", anio:2026, inicio:"01/06/2026", estimada:"02/07/2026", apertura:"—"},
+  {orden:19, sucursal:"Paraguarí", tipo:"Renovación", estado:"En proceso", anio:2026, inicio:"15/06/2026", estimada:"07/07/2026", apertura:"—"},
+  {orden:20, sucursal:"Horqueta", tipo:"Renovación", estado:"En proceso", anio:2026, inicio:"15/06/2026", estimada:"20/08/2026", apertura:"—"},
+  {orden:21, sucursal:"La Colmena", tipo:"Mudanza", estado:"En proceso", anio:2026, inicio:"15/06/2026", estimada:"02/08/2026", apertura:"—"},
+  {orden:22, sucursal:"Santa Rosa Misiones", tipo:"Renovación", estado:"A iniciar", anio:2026, inicio:"22/06/2026", estimada:"07/07/2026", apertura:"—"},
+  {orden:23, sucursal:"Hohenau", tipo:"Renovación", estado:"A iniciar", anio:2026, inicio:"01/07/2026", estimada:"04/08/2026", apertura:"—"},
+  {orden:24, sucursal:"Limpio", tipo:"Renovación", estado:"A iniciar", anio:2026, inicio:"13/07/2026", estimada:"11/09/2026", apertura:"—"},
+  {orden:25, sucursal:"Pilar", tipo:"Nuevo", estado:"A iniciar", anio:2026, inicio:"15/07/2026", estimada:"14/09/2026", apertura:"—"},
+  {orden:26, sucursal:"Encarnación", tipo:"Renovación", estado:"A iniciar", anio:2026, inicio:"01/08/2026", estimada:"13/09/2026", apertura:"—"},
+  {orden:27, sucursal:"Encarnación 2", tipo:"Nuevo", estado:"A iniciar", anio:2026, inicio:"01/08/2026", estimada:"18/09/2026", apertura:"—"},
+  {orden:28, sucursal:"Concepción Av.Pinedo", tipo:"Renovación", estado:"A iniciar", anio:2026, inicio:"01/08/2026", estimada:"22/09/2026", apertura:"—"},
+  {orden:29, sucursal:"Ita", tipo:"Renovación", estado:"A definir", anio:2026, inicio:"01/08/2026", estimada:"19/09/2026", apertura:"—"},
+  {orden:30, sucursal:"San Ignacio Misiones", tipo:"Renovación", estado:"A definir", anio:2026, inicio:"01/08/2026", estimada:"26/09/2026", apertura:"—"},
+  {orden:31, sucursal:"Coronel Bogado", tipo:"Renovación", estado:"A definir", anio:2026, inicio:"—", estimada:"—", apertura:"—"},
+  {orden:32, sucursal:"María Auxiliadora", tipo:"Renovación", estado:"A definir", anio:2026, inicio:"—", estimada:"—", apertura:"—"},
+  {orden:33, sucursal:"Caaguazú Centro", tipo:"Renovación", estado:"A definir", anio:2026, inicio:"—", estimada:"—", apertura:"—"},
+  {orden:34, sucursal:"Santa Rita", tipo:"Renovación", estado:"A definir", anio:2026, inicio:"—", estimada:"—", apertura:"—"},
+  {orden:35, sucursal:"Hernandarias", tipo:"Renovación", estado:"A definir", anio:2026, inicio:"—", estimada:"—", apertura:"—"},
+  {orden:36, sucursal:"Pdte. Franco Centro", tipo:"Renovación", estado:"A definir", anio:2026, inicio:"—", estimada:"—", apertura:"—"},
+  {orden:37, sucursal:"C.D.E. Mercado", tipo:"Renovación", estado:"A definir", anio:2026, inicio:"—", estimada:"—", apertura:"—"},
+  {orden:38, sucursal:"Minga Guazú", tipo:"Renovación", estado:"A definir", anio:2026, inicio:"—", estimada:"—", apertura:"—"},
+  {orden:39, sucursal:"C.D.E. Ciudad Nueva", tipo:"Renovación", estado:"A definir", anio:2026, inicio:"—", estimada:"—", apertura:"—"},
+  {orden:40, sucursal:"San Juan Nepomuceno", tipo:"Renovación", estado:"A definir", anio:2026, inicio:"—", estimada:"—", apertura:"—"},
+  {orden:41, sucursal:"Caazapá", tipo:"Renovación", estado:"A definir", anio:2026, inicio:"—", estimada:"—", apertura:"—"},
+  {orden:42, sucursal:"Carapeguá", tipo:"Renovación", estado:"A definir", anio:2026, inicio:"—", estimada:"—", apertura:"—"},
+  {orden:43, sucursal:"San Lorenzo Centro", tipo:"Renovación", estado:"A definir", anio:2026, inicio:"—", estimada:"—", apertura:"—"},
+  {orden:44, sucursal:"Caacupé", tipo:"Renovación", estado:"A definir", anio:2026, inicio:"—", estimada:"—", apertura:"—"},
+  {orden:45, sucursal:"Villeta", tipo:"Renovación", estado:"A definir", anio:2026, inicio:"—", estimada:"—", apertura:"—"},
+  {orden:46, sucursal:"PJCaballero Centro", tipo:"Renovación", estado:"A definir", anio:2026, inicio:"—", estimada:"—", apertura:"—"},
+  {orden:47, sucursal:"Santaní Mercado", tipo:"Renovación", estado:"A definir", anio:2026, inicio:"—", estimada:"—", apertura:"—"},
+  {orden:48, sucursal:"Santaní Centro", tipo:"Renovación", estado:"A definir", anio:2026, inicio:"—", estimada:"—", apertura:"—"},
+  {orden:49, sucursal:"Liberación", tipo:"Renovación", estado:"A definir", anio:2026, inicio:"—", estimada:"—", apertura:"—"},
+  {orden:50, sucursal:"Loreto", tipo:"Renovación", estado:"A definir", anio:2026, inicio:"—", estimada:"—", apertura:"—"},
+  {orden:51, sucursal:"Belén", tipo:"Renovación", estado:"A definir", anio:2026, inicio:"—", estimada:"—", apertura:"—"},
+  {orden:52, sucursal:"Katueté", tipo:"Renovación", estado:"A definir", anio:2026, inicio:"—", estimada:"—", apertura:"—"},
+  {orden:53, sucursal:"Acceso Sur", tipo:"Renovación", estado:"A definir", anio:2026, inicio:"—", estimada:"—", apertura:"—"},
+  {orden:54, sucursal:"Caaguazú San Lorenzo", tipo:"Renovación", estado:"A definir", anio:2026, inicio:"—", estimada:"—", apertura:"—"},
+  {orden:55, sucursal:"Ypacaraí", tipo:"Renovación", estado:"A definir", anio:2026, inicio:"—", estimada:"—", apertura:"—"},
+  {orden:56, sucursal:"Luque Fábrica", tipo:"Renovación", estado:"A definir", anio:2026, inicio:"—", estimada:"—", apertura:"—"},
+  {orden:57, sucursal:"Capiatá Ruta 2", tipo:"Renovación", estado:"No", anio:2026, inicio:"—", estimada:"—", apertura:"—"},
+  {orden:58, sucursal:"Avda. Quinta", tipo:"Renovación", estado:"A definir", anio:2026, inicio:"—", estimada:"—", apertura:"—"},
+  {orden:59, sucursal:"Luque Mora Cue", tipo:"Nuevo", estado:"A definir", anio:2026, inicio:"—", estimada:"—", apertura:"—"}
 ];
 
 const badgeMap = {
-  "Finalizado": { cls: "fin",  label: "Finalizado" },
-  "En proceso": { cls: "proc", label: "En proceso" },
-  "A iniciar":  { cls: "ini",  label: "A iniciar"  },
-  "A definir":  { cls: "def",  label: "A definir"  },
-  "No":         { cls: "no",   label: "Sin avance"  }
+  "Finalizado": { cls:"fin",  label:"Finalizado" },
+  "En proceso": { cls:"proc", label:"En proceso" },
+  "A iniciar":  { cls:"ini",  label:"A iniciar"  },
+  "A definir":  { cls:"def",  label:"A definir"  },
+  "No":         { cls:"no",   label:"Sin avance"  }
 };
 const chipMap = {
-  "Renovación": { cls: "renovacion", label: "Renovación" },
-  "Nuevo":      { cls: "nuevo",      label: "Nuevo"      },
-  "Mudanza":    { cls: "mudanza",    label: "Mudanza"    }
+  "Renovación": { cls:"renovacion", label:"Renovación" },
+  "Nuevo":      { cls:"nuevo",      label:"Nuevo"      },
+  "Mudanza":    { cls:"mudanza",    label:"Mudanza"    }
 };
 
 function buildRows(filter) {
   const tbody = document.getElementById("tableBody");
   tbody.innerHTML = "";
   const filtered = filter === "all" ? data : data.filter(d => d.estado === filter);
-
-  let lastGroup = null;
+  let lastYear = null;
   filtered.forEach(row => {
-    const b = badgeMap[row.estado] || { cls: "def", label: row.estado };
-    const c = chipMap[row.tipo]    || { cls: "renovacion", label: row.tipo };
-
-    const isDatePending = (d) => (!d || d === "—" || d === "A definir");
-
+    const b = badgeMap[row.estado] || {cls:"def", label:row.estado};
+    const c = chipMap[row.tipo]    || {cls:"renovacion", label:row.tipo};
+    const isPending = (d) => (!d || d === "—" || d === "A definir");
+    if (filter === "all" && row.anio !== lastYear) {
+      lastYear = row.anio;
+      tbody.innerHTML += `<tr><td colspan="7" class="year-label">${row.anio}</td></tr>`;
+    }
     tbody.innerHTML += `
-      <tr class="data-row" data-estado="${row.estado}">
+      <tr>
         <td class="orden">${row.orden}</td>
         <td class="sucursal">${row.sucursal}</td>
         <td><span class="chip ${c.cls}">${c.label}</span></td>
         <td><span class="badge ${b.cls}"><span class="badge-dot"></span>${b.label}</span></td>
-        <td class="date-cell ${isDatePending(row.inicio) ? 'pending' : ''}">${row.inicio}</td>
-        <td class="date-cell ${isDatePending(row.estimada) ? 'pending' : ''}">${row.estimada}</td>
-        <td class="date-cell ${isDatePending(row.apertura) ? 'pending' : ''}">${row.apertura}</td>
-        <td class="date-cell" style="text-align:right">${row.m2}</td>
+        <td class="date-cell ${isPending(row.inicio) ? 'pending' : ''}">${row.inicio}</td>
+        <td class="date-cell ${isPending(row.estimada) ? 'pending' : ''}">${row.estimada}</td>
+        <td class="date-cell ${isPending(row.apertura) ? 'pending' : ''}">${row.apertura}</td>
       </tr>`;
   });
 }
 
 function filterTable(filter, el) {
-  const tabs = document.querySelectorAll('.filter-tab');
-  tabs.forEach(t => {
-    t.className = 'filter-tab inactive';
-  });
-  if (filter === 'all') el.className = 'filter-tab active-all';
-  else if (filter === 'Finalizado') el.className = 'filter-tab active-fin';
-  else if (filter === 'En proceso') el.className = 'filter-tab active-proc';
-  else if (filter === 'A iniciar')  el.className = 'filter-tab active-ini';
-  else if (filter === 'A definir')  el.className = 'filter-tab active-def';
+  document.querySelectorAll('.filter-tab').forEach(t => { t.className = 'filter-tab inactive'; });
+  if (filter==='all')          el.className = 'filter-tab active-all';
+  else if (filter==='Finalizado') el.className = 'filter-tab active-fin';
+  else if (filter==='En proceso') el.className = 'filter-tab active-proc';
+  else if (filter==='A iniciar')  el.className = 'filter-tab active-ini';
+  else if (filter==='A definir')  el.className = 'filter-tab active-def';
   buildRows(filter);
 }
 
 buildRows('all');
 
-/* ── DONUT ── */
+/* DONUT */
 new Chart(document.getElementById('donutChart'), {
   type: 'doughnut',
   data: {
-    labels: ['Finalizado', 'En proceso', 'A iniciar', 'A definir', 'Sin avance'],
+    labels: ['Finalizado','En proceso','A iniciar','A definir','Sin avance'],
     datasets: [{
-      data: [15, 6, 7, 30, 1],
-      backgroundColor: ['#1D9E75', '#EF9F27', '#378ADD', '#B4B2A9', '#E24B4A'],
-      borderWidth: 2,
-      borderColor: '#fff',
-      hoverOffset: 6
+      data: [15,6,7,30,1],
+      backgroundColor: ['#1D9E75','#EF9F27','#1557A0','#B4B2A9','#E24B4A'],
+      borderWidth: 2, borderColor: '#fff', hoverOffset: 6
     }]
   },
   options: {
-    responsive: true,
-    maintainAspectRatio: false,
-    cutout: '68%',
+    responsive:true, maintainAspectRatio:false, cutout:'68%',
     plugins: {
-      legend: { display: false },
+      legend: {display:false},
       tooltip: {
-        callbacks: {
-          label: (ctx) => ` ${ctx.label}: ${ctx.raw} (${Math.round(ctx.raw/59*100)}%)`
-        }
+        callbacks: { label: (ctx) => ` ${ctx.label}: ${ctx.raw} (${Math.round(ctx.raw/59*100)}%)` }
       }
     }
   }
 });
 
-/* ── HORIZONTAL BAR ── */
+/* BAR TIPO */
 new Chart(document.getElementById('barChart'), {
   type: 'bar',
   data: {
-    labels: ['Renovación', 'Nuevo', 'Mudanza'],
+    labels: ['Renovación','Nuevo','Mudanza'],
     datasets: [{
-      data: [44, 10, 5],
-      backgroundColor: ['#534AB7', '#185FA5', '#BA7517'],
-      borderRadius: 5,
-      borderSkipped: false,
+      data: [44,10,5],
+      backgroundColor: ['#1B2A47','#1557A0','#EF9F27'],
+      borderRadius: 5, borderSkipped: false,
     }]
   },
   options: {
-    indexAxis: 'y',
-    responsive: true,
-    maintainAspectRatio: false,
-    plugins: { legend: { display: false } },
+    indexAxis: 'y', responsive:true, maintainAspectRatio:false,
+    plugins: {
+      legend: {display:false},
+      datalabels: {display:false},
+      tooltip: { callbacks: { label: (ctx) => ` ${ctx.raw} sucursales` } }
+    },
     scales: {
-      x: { grid: { color: '#F1EFE8' }, ticks: { color: '#888780', font: { size: 11 } } },
-      y: { grid: { display: false }, ticks: { color: '#1B2A47', font: { size: 12, weight: '600' } } }
+      x: { grid:{color:'#F1EFE8'}, ticks:{color:'#888780', font:{size:11}}, beginAtZero:true },
+      y: { grid:{display:false}, ticks:{color:'#1B2A47', font:{size:12, weight:'600'}} }
     }
   }
 });
 
-/* ── LINE CHART ── */
+/* GROUPED BAR 2025 vs 2026 */
 new Chart(document.getElementById('lineChart'), {
   type: 'bar',
   data: {
-    labels: ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep'],
-    datasets: [{
-      label: 'Inauguraciones',
-      data: [2, 2, 3, 2, 0, 2, 3, 3, 4],
-      backgroundColor: '#1B2A47',
-      borderRadius: 4,
-      borderSkipped: false
-    }]
+    labels: ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'],
+    datasets: [
+      {
+        label: '2025',
+        data: [0,0,0,0,0,0,1,1,2,1,2,1],
+        backgroundColor: '#C0272D',
+        borderRadius: 3, borderSkipped: false
+      },
+      {
+        label: '2026',
+        data: [2,2,3,2,0,2,3,3,4,0,0,0],
+        backgroundColor: '#1B2A47',
+        borderRadius: 3, borderSkipped: false
+      }
+    ]
   },
   options: {
-    responsive: true,
-    maintainAspectRatio: false,
-    plugins: { legend: { display: false } },
+    responsive:true, maintainAspectRatio:false,
+    plugins: {
+      legend: {display:false},
+      tooltip: { mode:'index', intersect:false }
+    },
     scales: {
-      x: { grid: { display: false }, ticks: { color: '#888780', font: { size: 10 } } },
-      y: {
-        grid: { color: '#F1EFE8' },
-        ticks: { stepSize: 1, color: '#888780', font: { size: 10 } },
-        beginAtZero: true
-      }
+      x: { grid:{display:false}, ticks:{color:'#888780', font:{size:9}}, stacked:false },
+      y: { grid:{color:'#F1EFE8'}, ticks:{stepSize:1, color:'#888780', font:{size:10}}, beginAtZero:true }
     }
   }
 });
