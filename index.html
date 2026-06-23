@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Informe de Avance — Implementaciones en Sucursales</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0/dist/chartjs-plugin-datalabels.min.js"></script>
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body { font-family: 'Segoe UI', Arial, sans-serif; background: #F0F2F5; color: #1a1a2e; min-height: 100vh; }
@@ -40,8 +41,8 @@
   .chart-card-title { font-size: 13px; font-weight: 600; color: #1B2A47; margin-bottom: 16px; }
   .chart-wrap { position: relative; width: 100%; }
 
-  .legend-row { display: flex; gap: 14px; flex-wrap: wrap; font-size: 11px; color: #5F5E5A; margin-top: 14px; align-items: center; flex-direction: column; gap: 6px; align-items: flex-start; }
-  .legend-item { display: flex; align-items: center; gap: 6px; font-weight: 500; }
+  .legend-row { display: flex; flex-direction: column; gap: 6px; margin-top: 14px; }
+  .legend-item { display: flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 500; color: #5F5E5A; }
   .legend-box { width: 10px; height: 10px; border-radius: 2px; flex-shrink: 0; }
 
   .table-card { background: #fff; border-radius: 12px; overflow: hidden; margin-bottom: 28px; }
@@ -68,16 +69,11 @@
 
   .badge { display: inline-flex; align-items: center; gap: 5px; padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; white-space: nowrap; }
   .badge-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
-  .badge.fin  { background: #E1F5EE; color: #085041; }
-  .badge.fin .badge-dot { background: #1D9E75; }
-  .badge.proc { background: #FAEEDA; color: #633806; }
-  .badge.proc .badge-dot { background: #EF9F27; }
-  .badge.ini  { background: #E6EEF7; color: #1557A0; }
-  .badge.ini .badge-dot { background: #1557A0; }
-  .badge.def  { background: #F1EFE8; color: #444441; }
-  .badge.def .badge-dot { background: #888780; }
-  .badge.no   { background: #FCEBEB; color: #501313; }
-  .badge.no .badge-dot { background: #E24B4A; }
+  .badge.fin  { background: #E1F5EE; color: #085041; } .badge.fin .badge-dot { background: #1D9E75; }
+  .badge.proc { background: #FAEEDA; color: #633806; } .badge.proc .badge-dot { background: #EF9F27; }
+  .badge.ini  { background: #E6EEF7; color: #1557A0; } .badge.ini .badge-dot { background: #1557A0; }
+  .badge.def  { background: #F1EFE8; color: #444441; } .badge.def .badge-dot { background: #888780; }
+  .badge.no   { background: #FCEBEB; color: #501313; } .badge.no .badge-dot { background: #E24B4A; }
 
   .chip { font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 4px; display: inline-block; }
   .chip.renovacion { background: #EEEDFE; color: #3C3489; }
@@ -86,7 +82,6 @@
 
   .date-cell { font-size: 12px; color: #5F5E5A; font-variant-numeric: tabular-nums; }
   .date-cell.pending { color: #B4B2A9; font-style: italic; }
-
   .year-label { font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; color: #fff; background: #1B2A47; padding: 6px 16px; }
 
   .footer { text-align: center; font-size: 11px; color: #B4B2A9; padding: 24px 0 32px; border-top: 1px solid #E8E9EC; margin-top: 8px; }
@@ -136,7 +131,7 @@
     <div class="chart-card">
       <div class="chart-card-title">Avance general del plan</div>
       <div class="chart-wrap" style="height:170px;">
-        <canvas id="donutChart" role="img" aria-label="Gráfico de donut: 15 finalizadas, 6 en proceso, 7 a iniciar, 30 a definir, 1 sin avance">Distribución de 59 sucursales por estado.</canvas>
+        <canvas id="donutChart" role="img" aria-label="Donut: 15 finalizadas, 6 en proceso, 7 a iniciar, 30 a definir, 1 sin avance">Distribución de 59 sucursales.</canvas>
       </div>
       <div class="legend-row">
         <div class="legend-item"><div class="legend-box" style="background:#1D9E75"></div>Finalizado — 15</div>
@@ -160,7 +155,7 @@
     <div class="chart-card">
       <div class="chart-card-title">Inauguraciones por año y mes</div>
       <div class="chart-wrap" style="height:170px;">
-        <canvas id="lineChart" role="img" aria-label="Inauguraciones mensuales 2025 y 2026">Detalle de inauguraciones por mes.</canvas>
+        <canvas id="lineChart" role="img" aria-label="Inauguraciones mensuales 2025 y 2026">Detalle mensual.</canvas>
       </div>
       <div style="display:flex; gap:16px; margin-top:14px; font-size:11px; font-weight:600; color:#5F5E5A;">
         <span style="display:flex;align-items:center;gap:5px;"><span style="width:10px;height:3px;background:#C0272D;display:inline-block;border-radius:2px;"></span>2025</span>
@@ -180,7 +175,7 @@
         <button class="filter-tab inactive" onclick="filterTable('A definir', this)">A definir</button>
       </div>
     </div>
-    <table class="main-table" id="mainTable">
+    <table class="main-table">
       <thead>
         <tr>
           <th>#</th>
@@ -199,83 +194,84 @@
   <div class="footer">
     Generado para <strong>Inverfin S.A.</strong> — Gerencia de Proyectos e Implementaciones &middot; Plan de Sucursales 2025–2026
   </div>
-
 </div>
 
 <script>
+Chart.register(ChartDataLabels);
+
 const data = [
-  {orden:1, sucursal:"Luque Av.Gral.Aquino", tipo:"Renovación", estado:"Finalizado", anio:2025, inicio:"01/07/2025", estimada:"31/07/2025", apertura:"31/08/2025"},
-  {orden:2, sucursal:"San Lorenzo M.O.G.", tipo:"Mudanza", estado:"Finalizado", anio:2025, inicio:"20/10/2025", estimada:"30/11/2025", apertura:"30/11/2025"},
-  {orden:3, sucursal:"Villa Elisa", tipo:"Nuevo", estado:"Finalizado", anio:2025, inicio:"01/09/2025", estimada:"31/10/2025", apertura:"31/10/2025"},
-  {orden:4, sucursal:"Arroyos y Esteros", tipo:"Renovación", estado:"Finalizado", anio:2025, inicio:"01/09/2025", estimada:"31/12/2025", apertura:"31/12/2025"},
-  {orden:5, sucursal:"PJCaballero Terminal", tipo:"Nuevo", estado:"Finalizado", anio:2025, inicio:"01/11/2025", estimada:"30/11/2025", apertura:"30/11/2025"},
-  {orden:6, sucursal:"Emboscada", tipo:"Nuevo", estado:"Finalizado", anio:2026, inicio:"01/01/2026", estimada:"02/02/2026", apertura:"25/02/2026"},
-  {orden:7, sucursal:"Mariano Roque Alonso", tipo:"Renovación", estado:"Finalizado", anio:2026, inicio:"19/01/2026", estimada:"28/02/2026", apertura:"13/03/2026"},
-  {orden:8, sucursal:"Luque Cañada", tipo:"Nuevo", estado:"Finalizado", anio:2026, inicio:"13/01/2026", estimada:"—", apertura:"—"},
-  {orden:9, sucursal:"Itauguá", tipo:"Mudanza", estado:"Finalizado", anio:2026, inicio:"02/02/2026", estimada:"—", apertura:"—"},
-  {orden:10, sucursal:"Lambaré", tipo:"Nuevo", estado:"Finalizado", anio:2026, inicio:"01/10/2025", estimada:"23/02/2026", apertura:"10/03/2026"},
-  {orden:11, sucursal:"Laguna Grande F.M", tipo:"Renovación", estado:"Finalizado", anio:2026, inicio:"02/02/2026", estimada:"31/03/2026", apertura:"31/03/2026"},
-  {orden:12, sucursal:"Villa Hayes Nuevo", tipo:"Nuevo", estado:"Finalizado", anio:2026, inicio:"02/02/2026", estimada:"30/04/2026", apertura:"—"},
-  {orden:13, sucursal:"Areguá", tipo:"Renovación", estado:"Finalizado", anio:2026, inicio:"04/03/2026", estimada:"28/04/2026", apertura:"—"},
-  {orden:15, sucursal:"Capitán Miranda", tipo:"Mudanza", estado:"Finalizado", anio:2026, inicio:"08/04/2026", estimada:"16/06/2026", apertura:"—"},
-  {orden:16, sucursal:"Yasy Cañy", tipo:"Mudanza", estado:"Finalizado", anio:2026, inicio:"22/04/2026", estimada:"10/06/2026", apertura:"—"},
-  {orden:14, sucursal:"Luque Mercado", tipo:"Renovación", estado:"En proceso", anio:2026, inicio:"09/03/2026", estimada:"A definir", apertura:"—"},
-  {orden:17, sucursal:"Naranjal", tipo:"Nuevo", estado:"En proceso", anio:2026, inicio:"29/04/2026", estimada:"11/06/2026", apertura:"—"},
-  {orden:18, sucursal:"Ypané", tipo:"Renovación", estado:"En proceso", anio:2026, inicio:"01/06/2026", estimada:"02/07/2026", apertura:"—"},
-  {orden:19, sucursal:"Paraguarí", tipo:"Renovación", estado:"En proceso", anio:2026, inicio:"15/06/2026", estimada:"07/07/2026", apertura:"—"},
-  {orden:20, sucursal:"Horqueta", tipo:"Renovación", estado:"En proceso", anio:2026, inicio:"15/06/2026", estimada:"20/08/2026", apertura:"—"},
-  {orden:21, sucursal:"La Colmena", tipo:"Mudanza", estado:"En proceso", anio:2026, inicio:"15/06/2026", estimada:"02/08/2026", apertura:"—"},
-  {orden:22, sucursal:"Santa Rosa Misiones", tipo:"Renovación", estado:"A iniciar", anio:2026, inicio:"22/06/2026", estimada:"07/07/2026", apertura:"—"},
-  {orden:23, sucursal:"Hohenau", tipo:"Renovación", estado:"A iniciar", anio:2026, inicio:"01/07/2026", estimada:"04/08/2026", apertura:"—"},
-  {orden:24, sucursal:"Limpio", tipo:"Renovación", estado:"A iniciar", anio:2026, inicio:"13/07/2026", estimada:"11/09/2026", apertura:"—"},
-  {orden:25, sucursal:"Pilar", tipo:"Nuevo", estado:"A iniciar", anio:2026, inicio:"15/07/2026", estimada:"14/09/2026", apertura:"—"},
-  {orden:26, sucursal:"Encarnación", tipo:"Renovación", estado:"A iniciar", anio:2026, inicio:"01/08/2026", estimada:"13/09/2026", apertura:"—"},
-  {orden:27, sucursal:"Encarnación 2", tipo:"Nuevo", estado:"A iniciar", anio:2026, inicio:"01/08/2026", estimada:"18/09/2026", apertura:"—"},
-  {orden:28, sucursal:"Concepción Av.Pinedo", tipo:"Renovación", estado:"A iniciar", anio:2026, inicio:"01/08/2026", estimada:"22/09/2026", apertura:"—"},
-  {orden:29, sucursal:"Ita", tipo:"Renovación", estado:"A definir", anio:2026, inicio:"01/08/2026", estimada:"19/09/2026", apertura:"—"},
-  {orden:30, sucursal:"San Ignacio Misiones", tipo:"Renovación", estado:"A definir", anio:2026, inicio:"01/08/2026", estimada:"26/09/2026", apertura:"—"},
-  {orden:31, sucursal:"Coronel Bogado", tipo:"Renovación", estado:"A definir", anio:2026, inicio:"—", estimada:"—", apertura:"—"},
-  {orden:32, sucursal:"María Auxiliadora", tipo:"Renovación", estado:"A definir", anio:2026, inicio:"—", estimada:"—", apertura:"—"},
-  {orden:33, sucursal:"Caaguazú Centro", tipo:"Renovación", estado:"A definir", anio:2026, inicio:"—", estimada:"—", apertura:"—"},
-  {orden:34, sucursal:"Santa Rita", tipo:"Renovación", estado:"A definir", anio:2026, inicio:"—", estimada:"—", apertura:"—"},
-  {orden:35, sucursal:"Hernandarias", tipo:"Renovación", estado:"A definir", anio:2026, inicio:"—", estimada:"—", apertura:"—"},
-  {orden:36, sucursal:"Pdte. Franco Centro", tipo:"Renovación", estado:"A definir", anio:2026, inicio:"—", estimada:"—", apertura:"—"},
-  {orden:37, sucursal:"C.D.E. Mercado", tipo:"Renovación", estado:"A definir", anio:2026, inicio:"—", estimada:"—", apertura:"—"},
-  {orden:38, sucursal:"Minga Guazú", tipo:"Renovación", estado:"A definir", anio:2026, inicio:"—", estimada:"—", apertura:"—"},
-  {orden:39, sucursal:"C.D.E. Ciudad Nueva", tipo:"Renovación", estado:"A definir", anio:2026, inicio:"—", estimada:"—", apertura:"—"},
-  {orden:40, sucursal:"San Juan Nepomuceno", tipo:"Renovación", estado:"A definir", anio:2026, inicio:"—", estimada:"—", apertura:"—"},
-  {orden:41, sucursal:"Caazapá", tipo:"Renovación", estado:"A definir", anio:2026, inicio:"—", estimada:"—", apertura:"—"},
-  {orden:42, sucursal:"Carapeguá", tipo:"Renovación", estado:"A definir", anio:2026, inicio:"—", estimada:"—", apertura:"—"},
-  {orden:43, sucursal:"San Lorenzo Centro", tipo:"Renovación", estado:"A definir", anio:2026, inicio:"—", estimada:"—", apertura:"—"},
-  {orden:44, sucursal:"Caacupé", tipo:"Renovación", estado:"A definir", anio:2026, inicio:"—", estimada:"—", apertura:"—"},
-  {orden:45, sucursal:"Villeta", tipo:"Renovación", estado:"A definir", anio:2026, inicio:"—", estimada:"—", apertura:"—"},
-  {orden:46, sucursal:"PJCaballero Centro", tipo:"Renovación", estado:"A definir", anio:2026, inicio:"—", estimada:"—", apertura:"—"},
-  {orden:47, sucursal:"Santaní Mercado", tipo:"Renovación", estado:"A definir", anio:2026, inicio:"—", estimada:"—", apertura:"—"},
-  {orden:48, sucursal:"Santaní Centro", tipo:"Renovación", estado:"A definir", anio:2026, inicio:"—", estimada:"—", apertura:"—"},
-  {orden:49, sucursal:"Liberación", tipo:"Renovación", estado:"A definir", anio:2026, inicio:"—", estimada:"—", apertura:"—"},
-  {orden:50, sucursal:"Loreto", tipo:"Renovación", estado:"A definir", anio:2026, inicio:"—", estimada:"—", apertura:"—"},
-  {orden:51, sucursal:"Belén", tipo:"Renovación", estado:"A definir", anio:2026, inicio:"—", estimada:"—", apertura:"—"},
-  {orden:52, sucursal:"Katueté", tipo:"Renovación", estado:"A definir", anio:2026, inicio:"—", estimada:"—", apertura:"—"},
-  {orden:53, sucursal:"Acceso Sur", tipo:"Renovación", estado:"A definir", anio:2026, inicio:"—", estimada:"—", apertura:"—"},
-  {orden:54, sucursal:"Caaguazú San Lorenzo", tipo:"Renovación", estado:"A definir", anio:2026, inicio:"—", estimada:"—", apertura:"—"},
-  {orden:55, sucursal:"Ypacaraí", tipo:"Renovación", estado:"A definir", anio:2026, inicio:"—", estimada:"—", apertura:"—"},
-  {orden:56, sucursal:"Luque Fábrica", tipo:"Renovación", estado:"A definir", anio:2026, inicio:"—", estimada:"—", apertura:"—"},
-  {orden:57, sucursal:"Capiatá Ruta 2", tipo:"Renovación", estado:"No", anio:2026, inicio:"—", estimada:"—", apertura:"—"},
-  {orden:58, sucursal:"Avda. Quinta", tipo:"Renovación", estado:"A definir", anio:2026, inicio:"—", estimada:"—", apertura:"—"},
-  {orden:59, sucursal:"Luque Mora Cue", tipo:"Nuevo", estado:"A definir", anio:2026, inicio:"—", estimada:"—", apertura:"—"}
+  {orden:1,sucursal:"Luque Av.Gral.Aquino",tipo:"Renovación",estado:"Finalizado",anio:2025,inicio:"01/07/2025",estimada:"31/07/2025",apertura:"31/08/2025"},
+  {orden:2,sucursal:"San Lorenzo M.O.G.",tipo:"Mudanza",estado:"Finalizado",anio:2025,inicio:"20/10/2025",estimada:"30/11/2025",apertura:"30/11/2025"},
+  {orden:3,sucursal:"Villa Elisa",tipo:"Nuevo",estado:"Finalizado",anio:2025,inicio:"01/09/2025",estimada:"31/10/2025",apertura:"31/10/2025"},
+  {orden:4,sucursal:"Arroyos y Esteros",tipo:"Renovación",estado:"Finalizado",anio:2025,inicio:"01/09/2025",estimada:"31/12/2025",apertura:"31/12/2025"},
+  {orden:5,sucursal:"PJCaballero Terminal",tipo:"Nuevo",estado:"Finalizado",anio:2025,inicio:"01/11/2025",estimada:"30/11/2025",apertura:"30/11/2025"},
+  {orden:6,sucursal:"Emboscada",tipo:"Nuevo",estado:"Finalizado",anio:2026,inicio:"01/01/2026",estimada:"02/02/2026",apertura:"25/02/2026"},
+  {orden:7,sucursal:"Mariano Roque Alonso",tipo:"Renovación",estado:"Finalizado",anio:2026,inicio:"19/01/2026",estimada:"28/02/2026",apertura:"13/03/2026"},
+  {orden:8,sucursal:"Luque Cañada",tipo:"Nuevo",estado:"Finalizado",anio:2026,inicio:"13/01/2026",estimada:"—",apertura:"—"},
+  {orden:9,sucursal:"Itauguá",tipo:"Mudanza",estado:"Finalizado",anio:2026,inicio:"02/02/2026",estimada:"—",apertura:"—"},
+  {orden:10,sucursal:"Lambaré",tipo:"Nuevo",estado:"Finalizado",anio:2026,inicio:"01/10/2025",estimada:"23/02/2026",apertura:"10/03/2026"},
+  {orden:11,sucursal:"Laguna Grande F.M",tipo:"Renovación",estado:"Finalizado",anio:2026,inicio:"02/02/2026",estimada:"31/03/2026",apertura:"31/03/2026"},
+  {orden:12,sucursal:"Villa Hayes Nuevo",tipo:"Nuevo",estado:"Finalizado",anio:2026,inicio:"02/02/2026",estimada:"30/04/2026",apertura:"—"},
+  {orden:13,sucursal:"Areguá",tipo:"Renovación",estado:"Finalizado",anio:2026,inicio:"04/03/2026",estimada:"28/04/2026",apertura:"—"},
+  {orden:15,sucursal:"Capitán Miranda",tipo:"Mudanza",estado:"Finalizado",anio:2026,inicio:"08/04/2026",estimada:"16/06/2026",apertura:"—"},
+  {orden:16,sucursal:"Yasy Cañy",tipo:"Mudanza",estado:"Finalizado",anio:2026,inicio:"22/04/2026",estimada:"10/06/2026",apertura:"—"},
+  {orden:14,sucursal:"Luque Mercado",tipo:"Renovación",estado:"En proceso",anio:2026,inicio:"09/03/2026",estimada:"A definir",apertura:"—"},
+  {orden:17,sucursal:"Naranjal",tipo:"Nuevo",estado:"En proceso",anio:2026,inicio:"29/04/2026",estimada:"11/06/2026",apertura:"—"},
+  {orden:18,sucursal:"Ypané",tipo:"Renovación",estado:"En proceso",anio:2026,inicio:"01/06/2026",estimada:"02/07/2026",apertura:"—"},
+  {orden:19,sucursal:"Paraguarí",tipo:"Renovación",estado:"En proceso",anio:2026,inicio:"15/06/2026",estimada:"07/07/2026",apertura:"—"},
+  {orden:20,sucursal:"Horqueta",tipo:"Renovación",estado:"En proceso",anio:2026,inicio:"15/06/2026",estimada:"20/08/2026",apertura:"—"},
+  {orden:21,sucursal:"La Colmena",tipo:"Mudanza",estado:"En proceso",anio:2026,inicio:"15/06/2026",estimada:"02/08/2026",apertura:"—"},
+  {orden:22,sucursal:"Santa Rosa Misiones",tipo:"Renovación",estado:"A iniciar",anio:2026,inicio:"22/06/2026",estimada:"07/07/2026",apertura:"—"},
+  {orden:23,sucursal:"Hohenau",tipo:"Renovación",estado:"A iniciar",anio:2026,inicio:"01/07/2026",estimada:"04/08/2026",apertura:"—"},
+  {orden:24,sucursal:"Limpio",tipo:"Renovación",estado:"A iniciar",anio:2026,inicio:"13/07/2026",estimada:"11/09/2026",apertura:"—"},
+  {orden:25,sucursal:"Pilar",tipo:"Nuevo",estado:"A iniciar",anio:2026,inicio:"15/07/2026",estimada:"14/09/2026",apertura:"—"},
+  {orden:26,sucursal:"Encarnación",tipo:"Renovación",estado:"A iniciar",anio:2026,inicio:"01/08/2026",estimada:"13/09/2026",apertura:"—"},
+  {orden:27,sucursal:"Encarnación 2",tipo:"Nuevo",estado:"A iniciar",anio:2026,inicio:"01/08/2026",estimada:"18/09/2026",apertura:"—"},
+  {orden:28,sucursal:"Concepción Av.Pinedo",tipo:"Renovación",estado:"A iniciar",anio:2026,inicio:"01/08/2026",estimada:"22/09/2026",apertura:"—"},
+  {orden:29,sucursal:"Ita",tipo:"Renovación",estado:"A definir",anio:2026,inicio:"01/08/2026",estimada:"19/09/2026",apertura:"—"},
+  {orden:30,sucursal:"San Ignacio Misiones",tipo:"Renovación",estado:"A definir",anio:2026,inicio:"01/08/2026",estimada:"26/09/2026",apertura:"—"},
+  {orden:31,sucursal:"Coronel Bogado",tipo:"Renovación",estado:"A definir",anio:2026,inicio:"—",estimada:"—",apertura:"—"},
+  {orden:32,sucursal:"María Auxiliadora",tipo:"Renovación",estado:"A definir",anio:2026,inicio:"—",estimada:"—",apertura:"—"},
+  {orden:33,sucursal:"Caaguazú Centro",tipo:"Renovación",estado:"A definir",anio:2026,inicio:"—",estimada:"—",apertura:"—"},
+  {orden:34,sucursal:"Santa Rita",tipo:"Renovación",estado:"A definir",anio:2026,inicio:"—",estimada:"—",apertura:"—"},
+  {orden:35,sucursal:"Hernandarias",tipo:"Renovación",estado:"A definir",anio:2026,inicio:"—",estimada:"—",apertura:"—"},
+  {orden:36,sucursal:"Pdte. Franco Centro",tipo:"Renovación",estado:"A definir",anio:2026,inicio:"—",estimada:"—",apertura:"—"},
+  {orden:37,sucursal:"C.D.E. Mercado",tipo:"Renovación",estado:"A definir",anio:2026,inicio:"—",estimada:"—",apertura:"—"},
+  {orden:38,sucursal:"Minga Guazú",tipo:"Renovación",estado:"A definir",anio:2026,inicio:"—",estimada:"—",apertura:"—"},
+  {orden:39,sucursal:"C.D.E. Ciudad Nueva",tipo:"Renovación",estado:"A definir",anio:2026,inicio:"—",estimada:"—",apertura:"—"},
+  {orden:40,sucursal:"San Juan Nepomuceno",tipo:"Renovación",estado:"A definir",anio:2026,inicio:"—",estimada:"—",apertura:"—"},
+  {orden:41,sucursal:"Caazapá",tipo:"Renovación",estado:"A definir",anio:2026,inicio:"—",estimada:"—",apertura:"—"},
+  {orden:42,sucursal:"Carapeguá",tipo:"Renovación",estado:"A definir",anio:2026,inicio:"—",estimada:"—",apertura:"—"},
+  {orden:43,sucursal:"San Lorenzo Centro",tipo:"Renovación",estado:"A definir",anio:2026,inicio:"—",estimada:"—",apertura:"—"},
+  {orden:44,sucursal:"Caacupé",tipo:"Renovación",estado:"A definir",anio:2026,inicio:"—",estimada:"—",apertura:"—"},
+  {orden:45,sucursal:"Villeta",tipo:"Renovación",estado:"A definir",anio:2026,inicio:"—",estimada:"—",apertura:"—"},
+  {orden:46,sucursal:"PJCaballero Centro",tipo:"Renovación",estado:"A definir",anio:2026,inicio:"—",estimada:"—",apertura:"—"},
+  {orden:47,sucursal:"Santaní Mercado",tipo:"Renovación",estado:"A definir",anio:2026,inicio:"—",estimada:"—",apertura:"—"},
+  {orden:48,sucursal:"Santaní Centro",tipo:"Renovación",estado:"A definir",anio:2026,inicio:"—",estimada:"—",apertura:"—"},
+  {orden:49,sucursal:"Liberación",tipo:"Renovación",estado:"A definir",anio:2026,inicio:"—",estimada:"—",apertura:"—"},
+  {orden:50,sucursal:"Loreto",tipo:"Renovación",estado:"A definir",anio:2026,inicio:"—",estimada:"—",apertura:"—"},
+  {orden:51,sucursal:"Belén",tipo:"Renovación",estado:"A definir",anio:2026,inicio:"—",estimada:"—",apertura:"—"},
+  {orden:52,sucursal:"Katueté",tipo:"Renovación",estado:"A definir",anio:2026,inicio:"—",estimada:"—",apertura:"—"},
+  {orden:53,sucursal:"Acceso Sur",tipo:"Renovación",estado:"A definir",anio:2026,inicio:"—",estimada:"—",apertura:"—"},
+  {orden:54,sucursal:"Caaguazú San Lorenzo",tipo:"Renovación",estado:"A definir",anio:2026,inicio:"—",estimada:"—",apertura:"—"},
+  {orden:55,sucursal:"Ypacaraí",tipo:"Renovación",estado:"A definir",anio:2026,inicio:"—",estimada:"—",apertura:"—"},
+  {orden:56,sucursal:"Luque Fábrica",tipo:"Renovación",estado:"A definir",anio:2026,inicio:"—",estimada:"—",apertura:"—"},
+  {orden:57,sucursal:"Capiatá Ruta 2",tipo:"Renovación",estado:"No",anio:2026,inicio:"—",estimada:"—",apertura:"—"},
+  {orden:58,sucursal:"Avda. Quinta",tipo:"Renovación",estado:"A definir",anio:2026,inicio:"—",estimada:"—",apertura:"—"},
+  {orden:59,sucursal:"Luque Mora Cue",tipo:"Nuevo",estado:"A definir",anio:2026,inicio:"—",estimada:"—",apertura:"—"}
 ];
 
 const badgeMap = {
-  "Finalizado": { cls:"fin",  label:"Finalizado" },
-  "En proceso": { cls:"proc", label:"En proceso" },
-  "A iniciar":  { cls:"ini",  label:"A iniciar"  },
-  "A definir":  { cls:"def",  label:"A definir"  },
-  "No":         { cls:"no",   label:"Sin avance"  }
+  "Finalizado":{cls:"fin",label:"Finalizado"},
+  "En proceso":{cls:"proc",label:"En proceso"},
+  "A iniciar":{cls:"ini",label:"A iniciar"},
+  "A definir":{cls:"def",label:"A definir"},
+  "No":{cls:"no",label:"Sin avance"}
 };
 const chipMap = {
-  "Renovación": { cls:"renovacion", label:"Renovación" },
-  "Nuevo":      { cls:"nuevo",      label:"Nuevo"      },
-  "Mudanza":    { cls:"mudanza",    label:"Mudanza"    }
+  "Renovación":{cls:"renovacion",label:"Renovación"},
+  "Nuevo":{cls:"nuevo",label:"Nuevo"},
+  "Mudanza":{cls:"mudanza",label:"Mudanza"}
 };
 
 function buildRows(filter) {
@@ -284,39 +280,35 @@ function buildRows(filter) {
   const filtered = filter === "all" ? data : data.filter(d => d.estado === filter);
   let lastYear = null;
   filtered.forEach(row => {
-    const b = badgeMap[row.estado] || {cls:"def", label:row.estado};
-    const c = chipMap[row.tipo]    || {cls:"renovacion", label:row.tipo};
-    const isPending = (d) => (!d || d === "—" || d === "A definir");
+    const b = badgeMap[row.estado] || {cls:"def",label:row.estado};
+    const c = chipMap[row.tipo] || {cls:"renovacion",label:row.tipo};
+    const isPending = (d) => (!d || d==="—" || d==="A definir");
     if (filter === "all" && row.anio !== lastYear) {
       lastYear = row.anio;
       tbody.innerHTML += `<tr><td colspan="7" class="year-label">${row.anio}</td></tr>`;
     }
-    tbody.innerHTML += `
-      <tr>
-        <td class="orden">${row.orden}</td>
-        <td class="sucursal">${row.sucursal}</td>
-        <td><span class="chip ${c.cls}">${c.label}</span></td>
-        <td><span class="badge ${b.cls}"><span class="badge-dot"></span>${b.label}</span></td>
-        <td class="date-cell ${isPending(row.inicio) ? 'pending' : ''}">${row.inicio}</td>
-        <td class="date-cell ${isPending(row.estimada) ? 'pending' : ''}">${row.estimada}</td>
-        <td class="date-cell ${isPending(row.apertura) ? 'pending' : ''}">${row.apertura}</td>
-      </tr>`;
+    tbody.innerHTML += `<tr>
+      <td class="orden">${row.orden}</td>
+      <td class="sucursal">${row.sucursal}</td>
+      <td><span class="chip ${c.cls}">${c.label}</span></td>
+      <td><span class="badge ${b.cls}"><span class="badge-dot"></span>${b.label}</span></td>
+      <td class="date-cell ${isPending(row.inicio)?'pending':''}">${row.inicio}</td>
+      <td class="date-cell ${isPending(row.estimada)?'pending':''}">${row.estimada}</td>
+      <td class="date-cell ${isPending(row.apertura)?'pending':''}">${row.apertura}</td>
+    </tr>`;
   });
 }
 
 function filterTable(filter, el) {
-  document.querySelectorAll('.filter-tab').forEach(t => { t.className = 'filter-tab inactive'; });
-  if (filter==='all')          el.className = 'filter-tab active-all';
-  else if (filter==='Finalizado') el.className = 'filter-tab active-fin';
-  else if (filter==='En proceso') el.className = 'filter-tab active-proc';
-  else if (filter==='A iniciar')  el.className = 'filter-tab active-ini';
-  else if (filter==='A definir')  el.className = 'filter-tab active-def';
+  document.querySelectorAll('.filter-tab').forEach(t => t.className='filter-tab inactive');
+  const map = {'all':'active-all','Finalizado':'active-fin','En proceso':'active-proc','A iniciar':'active-ini','A definir':'active-def'};
+  el.className = 'filter-tab ' + (map[filter] || 'active-all');
   buildRows(filter);
 }
 
 buildRows('all');
 
-/* DONUT */
+/* DONUT con etiquetas */
 new Chart(document.getElementById('donutChart'), {
   type: 'doughnut',
   data: {
@@ -324,21 +316,26 @@ new Chart(document.getElementById('donutChart'), {
     datasets: [{
       data: [15,6,7,30,1],
       backgroundColor: ['#1D9E75','#EF9F27','#1557A0','#B4B2A9','#E24B4A'],
-      borderWidth: 2, borderColor: '#fff', hoverOffset: 6
+      borderWidth: 2, borderColor: '#fff', hoverOffset: 4
     }]
   },
   options: {
-    responsive:true, maintainAspectRatio:false, cutout:'68%',
+    responsive:true, maintainAspectRatio:false, cutout:'62%',
     plugins: {
       legend: {display:false},
-      tooltip: {
-        callbacks: { label: (ctx) => ` ${ctx.label}: ${ctx.raw} (${Math.round(ctx.raw/59*100)}%)` }
+      tooltip: { callbacks: { label: (ctx) => ` ${ctx.label}: ${ctx.raw}` } },
+      datalabels: {
+        color: '#fff',
+        font: { weight:'700', size:12 },
+        formatter: (value) => value > 2 ? value : '',
+        anchor: 'center',
+        align: 'center'
       }
     }
   }
 });
 
-/* BAR TIPO */
+/* BARRAS TIPO con etiquetas al final */
 new Chart(document.getElementById('barChart'), {
   type: 'bar',
   data: {
@@ -346,24 +343,31 @@ new Chart(document.getElementById('barChart'), {
     datasets: [{
       data: [44,10,5],
       backgroundColor: ['#1B2A47','#1557A0','#EF9F27'],
-      borderRadius: 5, borderSkipped: false,
+      borderRadius: 5, borderSkipped: false
     }]
   },
   options: {
     indexAxis: 'y', responsive:true, maintainAspectRatio:false,
+    layout: { padding: { right: 30 } },
     plugins: {
       legend: {display:false},
-      datalabels: {display:false},
-      tooltip: { callbacks: { label: (ctx) => ` ${ctx.raw} sucursales` } }
+      tooltip: { callbacks: { label: (ctx) => ` ${ctx.raw} sucursales` } },
+      datalabels: {
+        color: '#1B2A47',
+        font: { weight:'700', size:13 },
+        anchor: 'end',
+        align: 'end',
+        formatter: (value) => value
+      }
     },
     scales: {
-      x: { grid:{color:'#F1EFE8'}, ticks:{color:'#888780', font:{size:11}}, beginAtZero:true },
-      y: { grid:{display:false}, ticks:{color:'#1B2A47', font:{size:12, weight:'600'}} }
+      x: { display:false, beginAtZero:true, max:52 },
+      y: { grid:{display:false}, ticks:{color:'#1B2A47', font:{size:12,weight:'600'}} }
     }
   }
 });
 
-/* GROUPED BAR 2025 vs 2026 */
+/* BARRAS AGRUPADAS 2025 vs 2026 con etiquetas */
 new Chart(document.getElementById('lineChart'), {
   type: 'bar',
   data: {
@@ -387,11 +391,18 @@ new Chart(document.getElementById('lineChart'), {
     responsive:true, maintainAspectRatio:false,
     plugins: {
       legend: {display:false},
-      tooltip: { mode:'index', intersect:false }
+      tooltip: { mode:'index', intersect:false },
+      datalabels: {
+        color: '#fff',
+        font: { weight:'700', size:10 },
+        anchor: 'end',
+        align: 'start',
+        formatter: (value) => value > 0 ? value : ''
+      }
     },
     scales: {
-      x: { grid:{display:false}, ticks:{color:'#888780', font:{size:9}}, stacked:false },
-      y: { grid:{color:'#F1EFE8'}, ticks:{stepSize:1, color:'#888780', font:{size:10}}, beginAtZero:true }
+      x: { grid:{display:false}, ticks:{color:'#888780', font:{size:9}} },
+      y: { grid:{color:'#F1EFE8'}, ticks:{stepSize:1, color:'#888780', font:{size:10}}, beginAtZero:true, max:5 }
     }
   }
 });
